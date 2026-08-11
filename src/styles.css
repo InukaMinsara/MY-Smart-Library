@@ -1,0 +1,285 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* Completely hide the Lovable badge and branding widget */
+#lovable-badge,
+[id*="lovable-badge"],
+.lovable-badge,
+button[aria-label*="Lovable"],
+a[href*="lovable.app"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --animate-blob: blob 7s infinite;
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+}
+
+:root {
+  --radius: 1rem; /* More rounded */
+  --background: oklch(0.99 0.01 265);
+  --foreground: oklch(0.14 0.05 265);
+  --card: oklch(1 0 0 / 70%); /* Glassmorphism */
+  --card-foreground: oklch(0.14 0.05 265);
+  --popover: oklch(1 0 0 / 80%);
+  --popover-foreground: oklch(0.14 0.05 265);
+  
+  --primary: oklch(0.5 0.22 273); /* Vibrant Neon Indigo */
+  --primary-foreground: oklch(0.99 0.01 265);
+  
+  --secondary: oklch(0.96 0.03 273);
+  --secondary-foreground: oklch(0.3 0.15 273);
+  --muted: oklch(0.95 0.01 265);
+  --muted-foreground: oklch(0.48 0.03 265);
+  --accent: oklch(0.65 0.2 320); /* Neon Pink/Magenta */
+  --accent-foreground: oklch(0.99 0.01 265);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.99 0.01 265);
+  --border: oklch(0.9 0.02 265);
+  --input: oklch(0.9 0.02 265);
+  --ring: oklch(0.5 0.22 273);
+  
+  --chart-1: oklch(0.5 0.22 273);
+  --chart-2: oklch(0.65 0.2 320);
+  --chart-3: oklch(0.65 0.15 190);
+  --chart-4: oklch(0.75 0.16 85);
+  --chart-5: oklch(0.55 0.14 145);
+  
+  --sidebar: oklch(1 0 0 / 50%); /* Glass sidebar */
+  --sidebar-foreground: oklch(0.14 0.05 265);
+  --sidebar-primary: oklch(0.5 0.22 273);
+  --sidebar-primary-foreground: oklch(0.99 0.01 265);
+  --sidebar-accent: oklch(0.96 0.03 273);
+  --sidebar-accent-foreground: oklch(0.3 0.15 273);
+  --sidebar-border: oklch(0.9 0.02 265 / 40%);
+  --sidebar-ring: oklch(0.5 0.22 273);
+}
+
+.dark {
+  --background: oklch(0.12 0.02 265); /* Deep midnight space blue */
+  --foreground: oklch(0.98 0.01 265);
+  --card: oklch(0.15 0.03 265 / 60%);
+  --card-foreground: oklch(0.98 0.01 265);
+  --popover: oklch(0.15 0.03 265 / 80%);
+  --popover-foreground: oklch(0.98 0.01 265);
+  
+  --primary: oklch(0.65 0.25 273);
+  --primary-foreground: oklch(0.12 0.02 265);
+  
+  --secondary: oklch(0.2 0.05 273);
+  --secondary-foreground: oklch(0.98 0.01 265);
+  --muted: oklch(0.18 0.03 265);
+  --muted-foreground: oklch(0.7 0.03 265);
+  --accent: oklch(0.7 0.25 320);
+  --accent-foreground: oklch(0.12 0.02 265);
+  --destructive: oklch(0.65 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 265);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.65 0.25 273);
+  
+  --chart-1: oklch(0.65 0.25 273);
+  --chart-2: oklch(0.7 0.25 320);
+  --chart-3: oklch(0.7 0.16 190);
+  --chart-4: oklch(0.78 0.16 85);
+  --chart-5: oklch(0.65 0.15 145);
+  
+  --sidebar: oklch(0.15 0.03 265 / 40%);
+  --sidebar-foreground: oklch(0.98 0.01 265);
+  --sidebar-primary: oklch(0.65 0.25 273);
+  --sidebar-primary-foreground: oklch(0.12 0.02 265);
+  --sidebar-accent: oklch(0.2 0.05 273);
+  --sidebar-accent-foreground: oklch(0.98 0.01 265);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.65 0.25 273);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    @apply antialiased font-sans selection:bg-primary/20 selection:text-primary transition-colors duration-500;
+  }
+}
+
+/* =========================================
+   ULTRA EXTREME PREMIUM EFFECTS
+   ========================================= */
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary;
+    background-size: 200% 200%;
+    animation: gradient-x 6s ease infinite;
+  }
+  
+  .glass-extreme {
+    @apply relative backdrop-blur-3xl bg-background/40 dark:bg-background/20 border border-white/20 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.15)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.4)];
+  }
+}
+
+/* Moving gradient animation for text and borders */
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 6s ease infinite;
+}
+
+/* Glowing Aura for Primary Elements */
+.glow-primary {
+  box-shadow: 0 0 20px 2px var(--color-primary), 0 0 40px 5px var(--color-accent);
+}
+
+/* Make all standard cards and sidebars ultra-glassy with glowing edges on hover */
+.card, [data-sidebar="sidebar"], .bg-card {
+  @apply relative overflow-hidden backdrop-blur-3xl bg-card/40 dark:bg-card/20 border border-white/30 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-all duration-500;
+}
+
+/* Animated gradient border effect via pseudo-element */
+.card::before, .bg-card::before {
+  content: "";
+  @apply absolute inset-0 rounded-[inherit] border-2 border-transparent opacity-0 transition-opacity duration-500 pointer-events-none;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent), var(--color-secondary)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Extreme hover states for interactive cards */
+.card:hover, .bg-card:hover {
+  @apply shadow-[0_20px_50px_rgb(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(var(--color-primary),0.2)] -translate-y-2 scale-[1.01];
+}
+
+.card:hover::before, .bg-card:hover::before {
+  @apply opacity-100;
+  background-size: 200% 200%;
+  animation: gradient-x 6s ease infinite;
+}
+
+/* Film Grain / Noise Overlay */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* =========================================
+   FULLY ANIMATED WEBSITE EFFECTS
+   ========================================= */
+
+@keyframes slideUpFade {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); filter: blur(5px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  50% { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Staggered entry for cards, rows, and buttons */
+.card, [data-sidebar="sidebar"], .bg-card, tr, .animate-pop {
+  animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+button {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease !important;
+}
+button:active {
+  transform: scale(0.95) !important;
+}
+
+/* Stagger delays up to 12 elements */
+*:nth-child(1) > .card, tr:nth-child(1), .animate-pop:nth-child(1) { animation-delay: 0.05s; }
+*:nth-child(2) > .card, tr:nth-child(2), .animate-pop:nth-child(2) { animation-delay: 0.1s; }
+*:nth-child(3) > .card, tr:nth-child(3), .animate-pop:nth-child(3) { animation-delay: 0.15s; }
+*:nth-child(4) > .card, tr:nth-child(4), .animate-pop:nth-child(4) { animation-delay: 0.2s; }
+*:nth-child(5) > .card, tr:nth-child(5), .animate-pop:nth-child(5) { animation-delay: 0.25s; }
+*:nth-child(6) > .card, tr:nth-child(6), .animate-pop:nth-child(6) { animation-delay: 0.3s; }
+*:nth-child(7) > .card, tr:nth-child(7), .animate-pop:nth-child(7) { animation-delay: 0.35s; }
+*:nth-child(8) > .card, tr:nth-child(8), .animate-pop:nth-child(8) { animation-delay: 0.4s; }
+*:nth-child(9) > .card, tr:nth-child(9), .animate-pop:nth-child(9) { animation-delay: 0.45s; }
+*:nth-child(10) > .card, tr:nth-child(10), .animate-pop:nth-child(10) { animation-delay: 0.5s; }
+*:nth-child(11) > .card, tr:nth-child(11), .animate-pop:nth-child(11) { animation-delay: 0.55s; }
+*:nth-child(12) > .card, tr:nth-child(12), .animate-pop:nth-child(12) { animation-delay: 0.6s; }
+
+/* The sidebar itself shouldn't delay based on position inside root */
+[data-sidebar="sidebar"] {
+  animation-delay: 0s !important;
+}
+
+
