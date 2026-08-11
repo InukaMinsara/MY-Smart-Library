@@ -36,3 +36,4 @@ electron.log
 *.njsproj
 *.sln
 *.sw?
+win32-x64-template-gldp07/
