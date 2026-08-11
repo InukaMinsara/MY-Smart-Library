@@ -18,6 +18,8 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger,
   SidebarHeader, SidebarFooter,
 } from "@/components/ui/sidebar";
+import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
+import { MagneticButton } from "@/components/landing/MagneticButton";
 
 // ─── Staff navigation ──────────────────────────────────────────────────────
 const staffNav = [
@@ -59,7 +61,7 @@ function MemberSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
           <div className="flex items-center justify-center rounded-lg">
-            <img src="/logo.png" alt="Logo" className="h-10 w-10 object-contain drop-shadow-md" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="h-10 w-10 object-contain drop-shadow-md" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-black text-gradient uppercase tracking-wider">Smart Library</span>
@@ -108,7 +110,7 @@ function StaffSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
           <div className="flex items-center justify-center rounded-lg">
-            <img src="/logo.png" alt="Logo" className="h-10 w-10 object-contain drop-shadow-md" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Logo" className="h-10 w-10 object-contain drop-shadow-md" />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-black text-gradient uppercase tracking-wider">Smart Library</span>
@@ -192,13 +194,6 @@ function TopBar() {
   const roleLabel = isSuperAdmin ? "Super Admin" : isMember ? "Member" : isDisabled ? "Disabled" : isPending ? "Pending" : (roles[0] ?? "").replace(/_/g, " ");
   const initials = String(name).slice(0, 2).toUpperCase();
 
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-  };
-
   const signOut = async () => {
     await qc.cancelQueries();
     qc.clear();
@@ -209,7 +204,7 @@ function TopBar() {
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-white/10 glass-extreme px-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300">
-      <SidebarTrigger className="hover:bg-primary/20 transition-colors rounded-full text-foreground/80" />
+      <SidebarTrigger className="hover:bg-primary/20 transition-colors rounded-full text-foreground/80 hover:scale-110 active:scale-95" />
       <div className="flex-1" />
       <Badge
         className={cn(
@@ -220,22 +215,30 @@ function TopBar() {
       >
         {roleLabel}
       </Badge>
-      <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme" className="rounded-full hover:bg-primary/10 transition-colors text-foreground/80 hover:text-foreground">
-        {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-      </Button>
-      <Link to="/profile" className="flex items-center gap-3 rounded-full px-2 py-1.5 hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
-        <div className="hidden text-right text-xs leading-tight md:block">
-          <div className="font-semibold">{name}</div>
-          <div className="text-muted-foreground opacity-80">{subtitle}</div>
-        </div>
-        <Avatar className="h-9 w-9 border-2 border-background shadow-md">
-          {(profile as any)?.avatar_url && <AvatarImage src={(profile as any).avatar_url} alt={String(name)} />}
-          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
-        </Avatar>
-      </Link>
-      <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors">
-        <LogOut className="h-5 w-5" />
-      </Button>
+      
+      {/* Cinematic Radial Theme Switcher */}
+      <div className="scale-75 md:scale-90">
+        <ThemeSwitcher />
+      </div>
+
+      <MagneticButton>
+        <Link to="/profile" className="interactive flex items-center gap-3 rounded-full px-2 py-1.5 hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20 bg-background/50 backdrop-blur-md">
+          <div className="hidden text-right text-xs leading-tight md:block">
+            <div className="font-semibold">{name}</div>
+            <div className="text-muted-foreground opacity-80">{subtitle}</div>
+          </div>
+          <Avatar className="h-9 w-9 border-2 border-background shadow-md">
+            {(profile as any)?.avatar_url && <AvatarImage src={(profile as any).avatar_url} alt={String(name)} />}
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
+          </Avatar>
+        </Link>
+      </MagneticButton>
+
+      <MagneticButton>
+        <Button variant="ghost" size="icon" onClick={signOut} aria-label="Sign out" className="interactive rounded-full hover:bg-destructive/20 hover:text-destructive transition-colors text-foreground/80 bg-background/50 backdrop-blur-md">
+          <LogOut className="h-5 w-5" />
+        </Button>
+      </MagneticButton>
     </header>
   );
 }

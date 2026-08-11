@@ -1,0 +1,30 @@
+[Setup]
+AppName=Smart Library Management System Pro
+AppVersion=1.0.0
+AppCompany=Smart Library
+AppURL=http://localhost:8080/Smart_Library_New_v2.0/
+AppDir=<ProgramFiles>\Smart Library
+AppExe=Smart_Library_Tauri.exe
+AppIcon=src-tauri\icons\icon.ico
+OutputFolder=d:\library
+OutputFilename=Smart_Library_Setup.exe
+DefaultDir=<ProgramFiles>\Smart Library
+Uninstall=1
+
+[Files]
+SourceDir=d:\library
+File0=Smart_Library_Tauri.exe
+File1=src-tauri\icons\icon.ico
+File2=public\logo.png
+
+[Icons]
+Icon0_Title=Smart Library
+Icon0_Target=<AppDir>\Smart_Library_Tauri.exe
+Icon0_Icon=<AppDir>\icon.ico
+Icon0_Desktop=1
+Icon0_StartMenu=1
+
+[Shortcuts]
+DesktopShortcut=1
+StartMenuShortcut=1
+ProgramGroup=Smart Library

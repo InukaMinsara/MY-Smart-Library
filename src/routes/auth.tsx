@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Library, Loader2, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
+import { MagneticButton } from "@/components/landing/MagneticButton";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -283,7 +285,7 @@ function AuthPage() {
     if (!email) return toast.error("Please enter your email address.");
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/update-password",
+      redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}update-password`,
     });
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -291,30 +293,55 @@ function AuthPage() {
     setView("auth");
   };
 
+  const getRedirectUrl = (path: string) => {
+    const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+    return `${window.location.origin}${base}${path.startsWith('/') ? path.slice(1) : path}`;
+  };
+
   const signInWithGoogle = async () => {
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/dashboard" } });
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: getRedirectUrl("dashboard") } });
     if (error) { setBusy(false); toast.error(error.message); }
   };
 
   const signInWithGithub = async () => {
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "github", options: { redirectTo: window.location.origin + "/dashboard" } });
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "github", options: { redirectTo: getRedirectUrl("dashboard") } });
     if (error) { setBusy(false); toast.error(error.message); }
   };
 
   const signInWithMicrosoft = async () => {
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "azure", options: { redirectTo: window.location.origin + "/dashboard" } });
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "azure", options: { redirectTo: getRedirectUrl("dashboard") } });
     if (error) { setBusy(false); toast.error(error.message); }
   };
 
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseX = useSpring(x, { stiffness: 300, damping: 20 });
+  const mouseY = useSpring(y, { stiffness: 300, damping: 20 });
+  
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const xPos = (clientX - left) / width - 0.5;
+    const yPos = (clientY - top) / height - 0.5;
+    x.set(xPos * 5); // Subtle 3D effect
+    y.set(yPos * 5);
+  }
+
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-sidebar via-primary/40 to-accent/30 flex items-center justify-center p-6">
-      <div className="grid w-full max-w-5xl gap-8 md:grid-cols-2 items-center">
+    <div className="relative min-h-screen w-full bg-background flex items-center justify-center p-6 overflow-hidden">
+      {/* Deep Atmospheric Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[10%] left-[10%] w-[600px] h-[600px] rounded-full bg-primary/20 blur-[150px] mix-blend-screen animate-blob" />
+        <div className="absolute top-[60%] right-[10%] w-[500px] h-[500px] rounded-full bg-accent/20 blur-[150px] mix-blend-screen animate-blob" style={{ animationDelay: '3s' }} />
+      </div>
+      <div className="absolute inset-0 noise-overlay opacity-20 pointer-events-none z-0" />
+
+      <div className="relative z-10 grid w-full max-w-5xl gap-8 md:grid-cols-2 items-center">
         <div className="text-primary-foreground space-y-4 hidden md:block">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Smart Library Logo" className="h-24 w-auto object-contain drop-shadow-2xl animate-in zoom-in-90 duration-700" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Smart Library Logo" className="h-24 w-auto object-contain drop-shadow-2xl animate-in zoom-in-90 duration-700" />
             <div>
               <div className="text-2xl font-bold">Smart Library</div>
               <div className="text-sm text-primary-foreground/80">Management System Pro</div>
@@ -331,8 +358,15 @@ function AuthPage() {
             <li>• Reservations queue with notifications</li>
           </ul>
         </div>
-        <Card className="shadow-2xl border-0">
-          <CardHeader>
+        <motion.div
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => { x.set(0); y.set(0); }}
+          style={{ rotateX: mouseY, rotateY: mouseX }}
+          className="perspective-1000"
+        >
+          <Card className="glass-extreme border-0 shadow-2xl relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+            <CardHeader className="relative z-10">
             <CardTitle>Welcome</CardTitle>
             <CardDescription>Sign in with your staff account, or request access below.</CardDescription>
           </CardHeader>
@@ -360,9 +394,11 @@ function AuthPage() {
                       </div>
                       <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
-                    <Button type="submit" className="w-full" disabled={busy}>
-                      {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
-                    </Button>
+                    <MagneticButton className="w-full">
+                      <Button type="submit" className="w-full" disabled={busy}>
+                        {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Sign in
+                      </Button>
+                    </MagneticButton>
                   </form>
                   <div className="relative mt-4">
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
@@ -371,9 +407,9 @@ function AuthPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-4">
-                    <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGoogle} disabled={busy} title="Continue with Google"><GoogleIcon /></Button>
-                    <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithMicrosoft} disabled={busy} title="Continue with Microsoft"><MicrosoftIcon /></Button>
-                    <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGithub} disabled={busy} title="Continue with GitHub"><GithubIcon /></Button>
+                    <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGoogle} disabled={busy} title="Continue with Google"><GoogleIcon /></Button></MagneticButton>
+                    <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithMicrosoft} disabled={busy} title="Continue with Microsoft"><MicrosoftIcon /></Button></MagneticButton>
+                    <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGithub} disabled={busy} title="Continue with GitHub"><GithubIcon /></Button></MagneticButton>
                   </div>
                 </TabsContent>
 
@@ -416,7 +452,8 @@ function AuthPage() {
               </div>
             )}
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
