@@ -1,0 +1,8 @@
+[build]
+  publish = "dist"
+
+[build.environment]
+  # These Supabase values are public application configuration and are
+  # intentionally embedded in the browser bundle. Keep secret scanning active
+  # for privileged credentials such as service-role and AI provider keys.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_PROJECT_ID,SUPABASE_PUBLISHABLE_KEY,SUPABASE_URL,VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_URL"
