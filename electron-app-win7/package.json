@@ -1,7 +1,7 @@
 {
-  "name": "smart-library-pro",
+  "name": "smart-library-pro-win7",
   "version": "2.0.0",
-  "description": "Smart Library Pro Desktop Application",
+  "description": "Smart Library Pro Desktop Application (Windows 7/8)",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -10,8 +10,8 @@
   "author": "Smart Library",
   "license": "ISC",
   "build": {
-    "appId": "com.smartlibrary.pro",
-    "productName": "Smart Library Pro",
+    "appId": "com.smartlibrary.pro.win7",
+    "productName": "Smart Library Pro (Win7)",
     "directories": {
       "output": "dist"
     },
@@ -19,7 +19,10 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64", "ia32"]
+          "arch": [
+            "x64",
+            "ia32"
+          ]
         }
       ],
       "icon": "icon.ico"
@@ -29,7 +32,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^31.3.1",
+    "electron": "^22.3.27",
     "electron-builder": "^24.13.3"
   }
 }
