@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 
 function createWindow () {
   const win = new BrowserWindow({
@@ -6,6 +7,7 @@ function createWindow () {
     height: 800,
     autoHideMenuBar: true,
     title: "Smart Library Pro",
+    icon: path.join(__dirname, 'icon.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
