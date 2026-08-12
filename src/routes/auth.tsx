@@ -45,8 +45,14 @@ export const Route = createFileRoute("/auth")({
     ],
   }),
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/dashboard" });
+    let hasSession = false;
+    try {
+      const { data } = await supabase.auth.getSession();
+      hasSession = !!data?.session;
+    } catch (e) {
+      // Ignore errors in SSR
+    }
+    if (hasSession) throw redirect({ to: "/dashboard" });
   },
   component: AuthPage,
 });

@@ -3,8 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
+    let hasSession = false;
+    try {
+      const { data } = await supabase.auth.getSession();
+      hasSession = !!data?.session;
+    } catch (e) {
+      // Ignore errors in SSR
+    }
+    
+    if (hasSession) {
       throw redirect({ to: "/dashboard" });
     } else {
       throw redirect({ to: "/auth" });
