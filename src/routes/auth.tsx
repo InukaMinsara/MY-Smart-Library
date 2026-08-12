@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Library, Loader2, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { Library, Loader2, ChevronRight, ChevronLeft, CheckCircle2, ScanFace } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
 import { MagneticButton } from "@/components/landing/MagneticButton";
@@ -261,14 +261,170 @@ function SignupForm({ busy, setBusy }: { busy: boolean; setBusy: (v: boolean) =>
   );
 }
 
+import * as faceapi from '@vladmandic/face-api';
+
+function FaceScannerVideo({ onDetected }: { onDetected: (desc: Float32Array) => void }) {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let interval: any = null;
+    let isUnmounted = false;
+    
+    async function initCamera() {
+      // Load models
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+      ]);
+      if (isUnmounted) return;
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          
+          videoRef.current.onplay = () => {
+            interval = setInterval(async () => {
+              if (videoRef.current) {
+                const detection = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+                  .withFaceLandmarks()
+                  .withFaceDescriptor();
+                  
+                if (detection && !isUnmounted) {
+                  onDetected(detection.descriptor);
+                }
+              }
+            }, 500);
+          };
+        }
+      } catch (err) {
+        console.error("Camera access denied or unavailable", err);
+      }
+    }
+    
+    initCamera();
+    
+    return () => {
+      isUnmounted = true;
+      if (interval) clearInterval(interval);
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [onDetected]);
+  
+  return (
+    <video 
+      ref={videoRef} 
+      autoPlay 
+      playsInline 
+      muted 
+      className="absolute inset-0 w-full h-full object-cover opacity-70 grayscale contrast-125"
+    />
+  );
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [view, setView] = useState<"auth" | "forgot">("auth");
+  
+  // Face ID states
+  const [faceAuthMode, setFaceAuthMode] = useState<"idle" | "choice" | "register_creds" | "scanning">("idle");
+  const [scanIntent, setScanIntent] = useState<"register" | "authenticate">("authenticate");
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState<"analyzing" | "success" | "failed">("analyzing");
+  const [faceEmail, setFaceEmail] = useState("");
+  const [facePassword, setFacePassword] = useState("");
+  const [detectedDescriptor, setDetectedDescriptor] = useState<Float32Array | null>(null);
 
   useEffect(() => { document.title = "Sign in • Smart Library"; }, []);
+
+  const handleFaceIdClick = () => {
+    const saved = localStorage.getItem("smart_library_biometrics");
+    if (saved) {
+      setFaceAuthMode("choice");
+    } else {
+      setFaceAuthMode("register_creds");
+    }
+  };
+
+  const startFaceScan = (intent: "register" | "authenticate") => {
+    setScanIntent(intent);
+    setFaceAuthMode("scanning");
+    setScanStatus("analyzing");
+    setDetectedDescriptor(null);
+    setIsScanning(true);
+  };
+
+  const onFaceDetected = React.useCallback((desc: Float32Array) => {
+    // Only accept the first detection to avoid multiple triggers
+    setDetectedDescriptor(prev => prev ? prev : desc);
+  }, []);
+
+  useEffect(() => {
+    if (isScanning && detectedDescriptor) {
+      const processFace = async () => {
+        if (scanIntent === "register") {
+          setScanStatus("success");
+          const descArray = Array.from(detectedDescriptor);
+          localStorage.setItem("smart_library_biometrics", JSON.stringify({ email: faceEmail, password: facePassword, descriptor: descArray }));
+          toast.success("Face ID Registered successfully!");
+          
+          setBusy(true);
+          const { error } = await supabase.auth.signInWithPassword({ email: faceEmail, password: facePassword });
+          setBusy(false);
+          
+          if (!error) navigate({ to: "/dashboard" });
+          else toast.error("Registration saved, but login failed: " + error.message);
+          
+          setIsScanning(false);
+          setFaceAuthMode("idle");
+        } else if (scanIntent === "authenticate") {
+          const saved = localStorage.getItem("smart_library_biometrics");
+          if (saved) {
+            try {
+              const creds = JSON.parse(saved);
+              const savedDesc = new Float32Array(creds.descriptor);
+              const distance = faceapi.euclideanDistance(detectedDescriptor, savedDesc);
+              
+              if (distance < 0.5) { // Strict threshold for better security (0.5 or 0.6 is typical)
+                setScanStatus("success");
+                toast.success("Face Recognized. Welcome back!");
+                
+                setBusy(true);
+                const { error } = await supabase.auth.signInWithPassword({ email: creds.email, password: creds.password });
+                setBusy(false);
+                
+                if (!error) navigate({ to: "/dashboard" });
+                else toast.error(error.message);
+              } else {
+                setScanStatus("failed");
+                toast.error("Face not recognized! Access Denied.");
+              }
+            } catch (e) {
+              setScanStatus("failed");
+              toast.error("Biometrics corrupted. Please register again.");
+            }
+          } else {
+            setScanStatus("failed");
+            toast.error("Biometrics not found.");
+          }
+          
+          setTimeout(() => {
+            setIsScanning(false);
+            setFaceAuthMode("idle");
+          }, 2000);
+        }
+      };
+      
+      processFace();
+    }
+  }, [isScanning, detectedDescriptor, scanIntent, faceEmail, facePassword, navigate]);
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -406,7 +562,8 @@ function AuthPage() {
                       <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="grid grid-cols-4 gap-3 mt-4">
+                    <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={handleFaceIdClick} disabled={busy} title="Face ID Login"><ScanFace className="text-primary" /></Button></MagneticButton>
                     <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGoogle} disabled={busy} title="Continue with Google"><GoogleIcon /></Button></MagneticButton>
                     <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithMicrosoft} disabled={busy} title="Continue with Microsoft"><MicrosoftIcon /></Button></MagneticButton>
                     <MagneticButton className="w-full"><Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGithub} disabled={busy} title="Continue with GitHub"><GithubIcon /></Button></MagneticButton>
@@ -422,7 +579,8 @@ function AuthPage() {
                       <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-4 gap-3">
+                    <Button type="button" variant="outline" className="w-full h-11" onClick={handleFaceIdClick} disabled={busy} title="Face ID Login"><ScanFace className="text-primary" /></Button>
                     <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGoogle} disabled={busy} title="Continue with Google"><GoogleIcon /></Button>
                     <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithMicrosoft} disabled={busy} title="Continue with Microsoft"><MicrosoftIcon /></Button>
                     <Button type="button" variant="outline" className="w-full h-11" onClick={signInWithGithub} disabled={busy} title="Continue with GitHub"><GithubIcon /></Button>
@@ -455,6 +613,113 @@ function AuthPage() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Face ID Choice Dialog */}
+      {faceAuthMode === "choice" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <Card className="w-full max-w-sm glass-extreme border border-white/10 shadow-2xl">
+            <CardHeader className="text-center">
+              <div className="mx-auto bg-primary/20 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                <ScanFace className="w-8 h-8 text-primary" />
+              </div>
+              <CardTitle className="text-xl">Face ID Found</CardTitle>
+              <CardDescription>We detected a saved biometric profile on this device.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button className="w-full" size="lg" onClick={() => startFaceScan("authenticate")}>
+                Continue with Face ID
+              </Button>
+              <Button variant="outline" className="w-full" size="lg" onClick={() => setFaceAuthMode("register_creds")}>
+                Create New Face ID
+              </Button>
+              <Button variant="ghost" className="w-full" onClick={() => setFaceAuthMode("idle")}>
+                Cancel
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Face ID Credentials Registration */}
+      {faceAuthMode === "register_creds" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+          <Card className="w-full max-w-sm glass-extreme border border-white/10 shadow-2xl">
+            <CardHeader>
+              <CardTitle>Register Face ID</CardTitle>
+              <CardDescription>Enter your account credentials to link your biometrics.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={(e) => { e.preventDefault(); startFaceScan("register"); }} className="space-y-4">
+                <div>
+                  <Label>Email Address</Label>
+                  <Input type="email" required value={faceEmail} onChange={(e) => setFaceEmail(e.target.value)} className="bg-black/50" />
+                </div>
+                <div>
+                  <Label>Password</Label>
+                  <Input type="password" required value={facePassword} onChange={(e) => setFacePassword(e.target.value)} className="bg-black/50" />
+                </div>
+                <div className="pt-2 flex gap-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setFaceAuthMode("idle")}>Cancel</Button>
+                  <Button type="submit" className="flex-1">Start Scan</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Futuristic Face Scan Overlay */}
+      {isScanning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-500">
+          <div className="relative flex flex-col items-center">
+            {/* Holographic scanning box */}
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, type: "spring" }}
+              className={`relative w-72 h-96 rounded-3xl border-2 overflow-hidden shadow-[0_0_50px_rgba(var(--primary),0.3)] bg-black transition-colors duration-300 ${scanStatus === "success" ? "border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.3)]" : scanStatus === "failed" ? "border-destructive shadow-[0_0_50px_rgba(239,68,68,0.3)]" : "border-primary/50"}`}
+            >
+              <FaceScannerVideo onDetected={onFaceDetected} />
+              
+              {/* Corner accents */}
+              <div className={`absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 rounded-tl-3xl z-20 ${scanStatus === "success" ? "border-green-500" : scanStatus === "failed" ? "border-destructive" : "border-primary"}`} />
+              <div className={`absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 rounded-tr-3xl z-20 ${scanStatus === "success" ? "border-green-500" : scanStatus === "failed" ? "border-destructive" : "border-primary"}`} />
+              <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 rounded-bl-3xl z-20 ${scanStatus === "success" ? "border-green-500" : scanStatus === "failed" ? "border-destructive" : "border-primary"}`} />
+              <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 rounded-br-3xl z-20 ${scanStatus === "success" ? "border-green-500" : scanStatus === "failed" ? "border-destructive" : "border-primary"}`} />
+              
+              {/* Scanning line */}
+              {scanStatus === "analyzing" && (
+                <motion.div 
+                  animate={{ top: ["0%", "100%", "0%"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute left-0 right-0 h-1 bg-primary shadow-[0_0_30px_rgba(var(--primary),1)] z-30"
+                />
+              )}
+              
+              <div className="absolute inset-0 bg-primary/10 flex items-center justify-center z-10 pointer-events-none mix-blend-overlay">
+                <ScanFace className={`h-40 w-40 ${scanStatus === "success" ? "text-green-500" : scanStatus === "failed" ? "text-destructive" : "text-primary/30 animate-pulse"}`} />
+              </div>
+            </motion.div>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className={`mt-8 font-mono text-sm tracking-widest uppercase ${scanStatus === "failed" ? "text-destructive" : scanStatus === "success" ? "text-green-500" : "text-primary animate-pulse"}`}
+            >
+              {scanStatus === "analyzing" ? "Analyzing Biometrics..." : scanStatus === "success" ? "Face Identified" : "Biometrics Not Found"}
+            </motion.p>
+            
+            <Button 
+              variant="ghost" 
+              className="mt-12 text-muted-foreground hover:text-white"
+              onClick={() => { setIsScanning(false); setFaceAuthMode("idle"); }}
+            >
+              Abort Scan
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

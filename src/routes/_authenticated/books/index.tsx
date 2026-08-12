@@ -42,6 +42,9 @@ function BooksPage() {
   const [qrOpen, setQrOpen] = useState(false);
   const [selectedBookForQr, setSelectedBookForQr] = useState<any | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [addCopyOpen, setAddCopyOpen] = useState(false);
+  const [addCopyBook, setAddCopyBook] = useState<any | null>(null);
+  const [newCopyBarcode, setNewCopyBarcode] = useState("");
 
   const cats = useQuery({
     queryKey: ["categories"],
@@ -125,12 +128,19 @@ function BooksPage() {
     qc.invalidateQueries({ queryKey: ["books"] });
   };
 
-  const addCopy = async (book_id: string) => {
-    const { count } = await supabase.from("book_copies").select("*", { count: "exact", head: true }).eq("book_id", book_id);
-    const { error } = await supabase.from("book_copies").insert({ book_id, copy_number: (count ?? 0) + 1 });
+  const addCopy = async (b: any, barcode: string) => {
+    if (!barcode.trim()) return toast.error("Please enter a book number / barcode");
+    const { count } = await supabase.from("book_copies").select("*", { count: "exact", head: true }).eq("book_id", b.id);
+    const { error } = await supabase.from("book_copies").insert({ book_id: b.id, copy_number: (count ?? 0) + 1, barcode: barcode.trim() });
     if (error) return toast.error(error.message);
-    toast.success("Copy added");
+    
+    // Copy the book link to clipboard
+    const bookUrl = `${window.location.origin}/book/${b.id}`;
+    navigator.clipboard.writeText(bookUrl);
+    
+    toast.success("Copy added & link copied to clipboard!");
     qc.invalidateQueries({ queryKey: ["books"] });
+    setAddCopyOpen(false);
   };
 
   return (
@@ -184,7 +194,24 @@ function BooksPage() {
             </Dialog>
             )}
             
-            {/* QR Code Dialog */}
+            <Dialog open={addCopyOpen} onOpenChange={setAddCopyOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Copy: {addCopyBook?.title}</DialogTitle>
+                <DialogDescription>Enter a unique book number or barcode for this physical copy.</DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Label>Book Number / Barcode</Label>
+                <Input value={newCopyBarcode} onChange={e => setNewCopyBarcode(e.target.value)} placeholder="e.g. BK-2023-001" autoFocus />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAddCopyOpen(false)}>Cancel</Button>
+                <Button onClick={() => addCopy(addCopyBook, newCopyBarcode)}>Add Copy</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Create Book Dialog */}
             <Dialog open={qrOpen} onOpenChange={setQrOpen}>
               <DialogContent className="max-w-sm text-center flex flex-col items-center">
                 <DialogHeader>
@@ -260,13 +287,19 @@ function BooksPage() {
                       <TableCell>{b.price ? `$${Number(b.price).toFixed(2)}` : "—"}</TableCell>
                       <TableCell>{b.shelf_location ?? "—"}</TableCell>
                       <TableCell>{total}</TableCell>
-                      <TableCell><Badge variant={avail > 0 ? "default" : "secondary"}>{avail}</Badge></TableCell>
+                      <TableCell>
+                        {avail > 0 ? (
+                          <Badge variant="default">{avail}</Badge>
+                        ) : (
+                          <Badge variant="destructive" className="uppercase text-[10px] font-bold tracking-wider">Sold Out</Badge>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right space-x-1">
                         <Button size="icon" variant="ghost" onClick={() => { setSelectedBookForQr(b); setQrOpen(true); }} title="QR Code">
                           <QrCode className="h-4 w-4" />
                         </Button>
                         <Can permission="edit_book">
-                          <Button size="icon" variant="ghost" onClick={() => addCopy(b.id)} title="Add copy"><Boxes className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" onClick={() => { setAddCopyBook(b); setNewCopyBarcode(""); setAddCopyOpen(true); }} title="Add copy"><Boxes className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" onClick={() => { setEditing(b); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
                         </Can>
                         {isSuperAdmin && (

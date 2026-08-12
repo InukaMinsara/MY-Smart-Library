@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/library/page-header";
 import { usePermissions } from "@/hooks/use-current-user";
 import { PERMISSIONS } from "@/lib/permissions";
 import { toast } from "sonner";
+import { HolographicCard } from "@/components/library/HolographicCard";
 
 export const Route = createFileRoute("/_authenticated/profile/")({
   head: () => ({
@@ -101,6 +102,10 @@ function ProfilePage() {
     <div className="space-y-6">
       <PageHeader title="My Profile" description="You can only edit your own account details." />
 
+      <div className="mb-10">
+        <HolographicCard profile={profile} />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader><CardTitle>Account details</CardTitle></CardHeader>
@@ -108,20 +113,20 @@ function ProfilePage() {
             <form action={saveProfile} className="space-y-4">
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile?.full_name ?? ""} />}
-                  <AvatarFallback>{(profile?.full_name || user?.email || "?").slice(0, 2).toUpperCase()}</AvatarFallback>
+                  {(profile as any)?.avatar_url && <AvatarImage src={(profile as any).avatar_url} alt={(profile as any)?.full_name ?? ""} />}
+                  <AvatarFallback>{((profile as any)?.full_name || user?.email || "?").slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
                   <Label>Profile picture</Label>
                   <Input type="file" accept="image/*" onChange={uploadAvatar} disabled={saving} />
-                  <Input name="avatar_url" type="hidden" value={profile?.avatar_url ?? ""} />
+                  <Input name="avatar_url" type="hidden" value={(profile as any)?.avatar_url ?? ""} />
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div><Label>Name</Label><Input name="full_name" defaultValue={profile?.full_name ?? ""} required /></div>
-                <div><Label>Phone</Label><Input name="phone" defaultValue={profile?.phone ?? ""} /></div>
+                <div><Label>Name</Label><Input name="full_name" defaultValue={(profile as any)?.full_name ?? ""} required /></div>
+                <div><Label>Phone</Label><Input name="phone" defaultValue={(profile as any)?.phone ?? ""} /></div>
                 <div><Label>Email</Label><Input value={user?.email ?? ""} disabled /></div>
-                <div><Label>Job title</Label><Input value={profile?.job_name || profile?.job_title || "—"} disabled /></div>
+                <div><Label>Job title</Label><Input value={(profile as any)?.job_name || (profile as any)?.job_title || "—"} disabled /></div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Job title, role and permissions can only be changed by the Super Admin.
@@ -138,7 +143,7 @@ function ProfilePage() {
               <div>
                 <div className="text-xs text-muted-foreground">Role</div>
                 <Badge className={isSuperAdmin ? "bg-accent text-accent-foreground" : ""} variant={isSuperAdmin ? undefined : "secondary"}>
-                  {isSuperAdmin ? "Super Admin" : profile?.job_title ?? "Employee"}
+                  {isSuperAdmin ? "Super Admin" : (profile as any)?.job_title ?? "Employee"}
                 </Badge>
               </div>
               <div>

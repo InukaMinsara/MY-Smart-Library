@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/library/app-shell";
 import { AiChat } from "@/components/library/ai-chat";
+import { LiveTicker } from "@/components/library/LiveTicker";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/_authenticated")({
         <Outlet />
       </AppShell>
       <AiChat />
+      <LiveTicker />
     </>
   ),
 });

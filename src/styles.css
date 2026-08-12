@@ -149,6 +149,11 @@ a[href*="lovable.app"] {
   --sidebar-accent-foreground: oklch(0.98 0.01 265);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.65 0.25 273);
+  /* Utility class for fading out edges of scrolling containers */
+  .mask-edges {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
 }
 
 @layer base {

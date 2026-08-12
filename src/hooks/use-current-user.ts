@@ -116,11 +116,11 @@ export function usePermissions() {
     isActive,
     roles: role.data?.roles ?? [],
     permissions: isSuperAdmin ? "all" : granted,
-    // Members can access 'dashboard' and 'books' — their access is controlled by the member dashboard itself
+    // Members can access 'dashboard', 'books', and 'reservations'
     can: (p: string) =>
       isSuperAdmin ||
       (isActive && !isMember && granted.includes(p)) ||
-      (isMember && ["dashboard", "books", "loans", "returns", "reservations", "reports", "notifications", "members"].includes(p)),
+      (isMember && ["dashboard", "books", "reservations", "notifications"].includes(p)),
     ready: !loading && !role.isLoading && !perms.isLoading && !profile.isLoading,
   };
 }

@@ -6,6 +6,10 @@ import { PageHeader } from "@/components/library/page-header";
 import { BookOpen, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 import { fmtDate } from "@/lib/library-utils";
 import { Badge } from "@/components/ui/badge";
+import { DigitalTicket } from "./DigitalTicket";
+import { VirtualBookshelf } from "./VirtualBookshelf";
+import { AICarousel } from "./AICarousel";
+import { GamificationWidget } from "./GamificationWidget";
 
 export function MemberDashboard() {
   const { user, profile } = usePermissions();
@@ -33,7 +37,7 @@ export function MemberDashboard() {
     queryKey: ["member-loans", memberId],
     enabled: !!memberId,
     queryFn: async () => {
-      const { data } = await supabase.from("loans").select("id, loan_number, due_at, status, book_copies(books(title))").eq("member_id", memberId).eq("status", "active").order("due_at");
+      const { data } = await supabase.from("loans").select("id, loan_number, issued_at, due_at, status, members(full_name), book_copies(books(title, cover_url))").eq("member_id", memberId).eq("status", "active").order("due_at");
       return data ?? [];
     },
   });
@@ -44,7 +48,10 @@ export function MemberDashboard() {
     <div className="space-y-6">
       <PageHeader title="My Library" description="Welcome back! Here's an overview of your loans and reservations." />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <AICarousel />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <GamificationWidget />
         <Card>
           <CardContent className="flex items-center gap-4 p-5">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -79,31 +86,28 @@ export function MemberDashboard() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* 3D Virtual Bookshelf */}
+      {(myLoans.data ?? []).length > 0 && (
+        <div className="pt-6">
+          <h2 className="text-2xl font-bold mb-2 flex items-center gap-2"><CheckCircle2 className="text-primary"/> My Reading Shelf</h2>
+          <p className="text-sm text-muted-foreground mb-8">Hover over your borrowed books to inspect them in 3D.</p>
+          <div className="bg-card/50 rounded-xl border border-white/5 p-4 shadow-2xl relative overflow-hidden">
+             <div className="absolute inset-0 bg-primary/5 mix-blend-overlay pointer-events-none" />
+             <VirtualBookshelf loans={myLoans.data || []} />
+          </div>
+        </div>
+      )}
 
-      <Card>
-        <CardHeader><CardTitle>My Current Loans</CardTitle></CardHeader>
-        <CardContent>
-          {(myLoans.data ?? []).length === 0 && <p className="text-sm text-muted-foreground">You don't have any active loans right now.</p>}
-          <ul className="space-y-2">
-            {(myLoans.data ?? []).map((l: any) => {
-              const isOverdue = new Date(l.due_at) < new Date();
-              return (
-                <li key={l.id} className="flex items-center justify-between rounded-md border p-4 text-sm">
-                  <div>
-                    <div className="font-medium text-base">{l.book_copies?.books?.title}</div>
-                    <div className="text-xs text-muted-foreground">Loan ID: {l.loan_number}</div>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant={isOverdue ? "destructive" : "secondary"} className="mb-1">
-                      {isOverdue ? "Overdue" : "Due"} {fmtDate(l.due_at)}
-                    </Badge>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </CardContent>
-      </Card>
+      <div className="pt-8">
+        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><CheckCircle2 className="text-primary"/> Digital E-Tickets</h2>
+        {(myLoans.data ?? []).length === 0 && <p className="text-sm text-muted-foreground">You don't have any active loans right now.</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {(myLoans.data ?? []).map((l: any) => (
+            <DigitalTicket key={l.id} loan={l} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
