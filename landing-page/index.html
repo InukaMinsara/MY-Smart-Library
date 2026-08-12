@@ -57,15 +57,19 @@
     </div>
     
     <div class="hero-visual reveal" style="transition-delay: 0.2s">
-      <div class="glass-card main-showcase-card tilt-card">
-        <div class="mockup-header">
-          <div class="dots">
-            <span></span><span></span><span></span>
+      <div class="desktop-frame tilt-card">
+        <div class="desktop-header">
+          <div class="desktop-title"><i data-lucide="library" style="width: 14px; height: 14px;"></i> Smart Library Pro.exe</div>
+          <div class="desktop-controls">
+            <span class="ctrl min"></span>
+            <span class="ctrl max"></span>
+            <span class="ctrl close"></span>
           </div>
-          <div class="mockup-url">smartlibrary02.netlify.app</div>
         </div>
-        <!-- Embedded image from our previous work -->
-        <img src="../public/logo.png" alt="Smart Library Logo" class="hero-image-logo pulse" />
+        <div class="desktop-body">
+          <img src="../public/logo.png" alt="Smart Library Logo" class="hero-image-logo pulse" />
+          <div class="glow-effect"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -78,7 +82,6 @@
     </div>
     
     <div class="features-grid">
-      
       <!-- Feature 1 -->
       <div class="feature-card glass-card tilt-card reveal">
         <div class="feature-icon-wrapper">
@@ -114,7 +117,86 @@
         <h3>Gamification</h3>
         <p>Engage members with real-time reading stats, achievements, and beautiful UI widgets.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- Walkthrough Section -->
+  <section class="page-walkthrough" id="showcase">
+    <div class="section-header reveal">
+      <h2>Inside the <span class="text-gradient">Application</span></h2>
+      <p>A step-by-step preview of the seamless user experience.</p>
+    </div>
+    
+    <div class="walkthrough-container">
       
+      <!-- Step 1 -->
+      <div class="walkthrough-step reveal">
+        <div class="step-content">
+          <div class="step-number">01</div>
+          <h3>Smart Authentication</h3>
+          <p>The journey begins with a highly secure, futuristic login page. Users can sign in using traditional credentials or effortlessly scan their face for instant access.</p>
+        </div>
+        <div class="step-visual">
+          <div class="desktop-frame mini">
+            <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Login</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
+            <div class="desktop-body step-bg login-bg">
+              <i data-lucide="scan-face" class="step-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="walkthrough-step reverse reveal">
+        <div class="step-content">
+          <div class="step-number">02</div>
+          <h3>Personalized Dashboard</h3>
+          <p>Once logged in, members see a dynamic dashboard. It tracks reading streaks, gamification points, and displays current borrowed books with beautiful glassmorphic widgets.</p>
+        </div>
+        <div class="step-visual">
+          <div class="desktop-frame mini">
+            <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Dashboard</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
+            <div class="desktop-body step-bg dash-bg">
+              <i data-lucide="layout-dashboard" class="step-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="walkthrough-step reveal">
+        <div class="step-content">
+          <div class="step-number">03</div>
+          <h3>3D Book Library</h3>
+          <p>Searching for books is an immersive experience. View real-time inventory, browse categories, and interact with the 3D book cover models before reserving them.</p>
+        </div>
+        <div class="step-visual">
+          <div class="desktop-frame mini">
+            <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Books</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
+            <div class="desktop-body step-bg book-bg">
+              <i data-lucide="library-big" class="step-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="walkthrough-step reverse reveal">
+        <div class="step-content">
+          <div class="step-number">04</div>
+          <h3>E-Tickets & QR Codes</h3>
+          <p>Say goodbye to printed receipts. Every loan or reservation generates a digital E-Ticket with a unique QR code, ensuring fast and frictionless checkouts at the desk.</p>
+        </div>
+        <div class="step-visual">
+          <div class="desktop-frame mini">
+            <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Ticket</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
+            <div class="desktop-body step-bg ticket-bg">
+              <i data-lucide="qr-code" class="step-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
