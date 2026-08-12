@@ -191,13 +191,19 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: white;
 }
 
 .logo-icon {
   color: var(--primary-color);
+}
+
+.nav-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .nav-links {
