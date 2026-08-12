@@ -23,16 +23,29 @@
   <div class="bg-orb orb-2"></div>
   <div class="bg-grid"></div>
 
+  <!-- Floating Animated Icons -->
+  <div class="floating-icons-container">
+    <i data-lucide="cpu" class="floating-icon icon-1"></i>
+    <i data-lucide="fingerprint" class="floating-icon icon-2"></i>
+    <i data-lucide="database" class="floating-icon icon-3"></i>
+    <i data-lucide="book-open" class="floating-icon icon-4"></i>
+    <i data-lucide="qr-code" class="floating-icon icon-5"></i>
+    <i data-lucide="shield-check" class="floating-icon icon-6"></i>
+    <i data-lucide="zap" class="floating-icon icon-7"></i>
+    <i data-lucide="smartphone" class="floating-icon icon-8"></i>
+  </div>
+
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-content">
       <div class="logo">
-        <i data-lucide="library" class="logo-icon"></i>
+        <i data-lucide="library" class="logo-icon anim-spin-slow"></i>
         <span>Smart Library Pro</span>
       </div>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#showcase">Showcase</a>
+        <a href="#tech">Tech</a>
         <a href="https://smartlibrary02.netlify.app/" class="btn-primary-small">Open App</a>
       </div>
     </div>
@@ -41,7 +54,7 @@
   <!-- Hero Section -->
   <section class="hero" id="home">
     <div class="hero-content reveal">
-      <div class="badge">Version 2.0 is Here</div>
+      <div class="badge anim-pulse">Version 2.0 is Here</div>
       <h1 class="hero-title">The Library of <span class="text-gradient">2035</span>,<br/> Available Today.</h1>
       <p class="hero-desc">
         Experience the future of library management. Face Recognition Auth, 3D Virtual Bookshelves, Digital E-Tickets, and AI-driven insights wrapped in a stunning glassmorphism interface.
@@ -57,7 +70,7 @@
     </div>
     
     <div class="hero-visual reveal" style="transition-delay: 0.2s">
-      <div class="desktop-frame tilt-card">
+      <div class="desktop-frame tilt-card glow-border">
         <div class="desktop-header">
           <div class="desktop-title"><i data-lucide="library" style="width: 14px; height: 14px;"></i> Smart Library Pro.exe</div>
           <div class="desktop-controls">
@@ -83,36 +96,36 @@
     
     <div class="features-grid">
       <!-- Feature 1 -->
-      <div class="feature-card glass-card tilt-card reveal">
+      <div class="feature-card glass-card tilt-card reveal glow-hover">
         <div class="feature-icon-wrapper">
-          <i data-lucide="scan-face" class="feature-icon"></i>
+          <i data-lucide="scan-face" class="feature-icon anim-scan"></i>
         </div>
         <h3>Biometric Auth</h3>
         <p>Log in effortlessly using state-of-the-art Face Recognition AI running directly in your browser.</p>
       </div>
 
       <!-- Feature 2 -->
-      <div class="feature-card glass-card tilt-card reveal" style="transition-delay: 0.1s">
+      <div class="feature-card glass-card tilt-card reveal glow-hover" style="transition-delay: 0.1s">
         <div class="feature-icon-wrapper">
-          <i data-lucide="box" class="feature-icon"></i>
+          <i data-lucide="box" class="feature-icon anim-float"></i>
         </div>
         <h3>3D Bookshelf</h3>
         <p>Browse books like never before with an immersive, interactive 3D virtual bookshelf view.</p>
       </div>
 
       <!-- Feature 3 -->
-      <div class="feature-card glass-card tilt-card reveal" style="transition-delay: 0.2s">
+      <div class="feature-card glass-card tilt-card reveal glow-hover" style="transition-delay: 0.2s">
         <div class="feature-icon-wrapper">
-          <i data-lucide="ticket" class="feature-icon"></i>
+          <i data-lucide="ticket" class="feature-icon anim-bounce"></i>
         </div>
         <h3>Digital E-Tickets</h3>
         <p>Go paperless. Every book loan instantly generates a secure, scannable QR E-Ticket for members.</p>
       </div>
 
       <!-- Feature 4 -->
-      <div class="feature-card glass-card tilt-card reveal" style="transition-delay: 0.3s">
+      <div class="feature-card glass-card tilt-card reveal glow-hover" style="transition-delay: 0.3s">
         <div class="feature-icon-wrapper">
-          <i data-lucide="gamepad-2" class="feature-icon"></i>
+          <i data-lucide="gamepad-2" class="feature-icon anim-wiggle"></i>
         </div>
         <h3>Gamification</h3>
         <p>Engage members with real-time reading stats, achievements, and beautiful UI widgets.</p>
@@ -137,10 +150,10 @@
           <p>Everything starts here. New members can create their profile in seconds, set up their avatars, and seamlessly register their facial biometrics for future hassle-free access.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Register</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg login-bg">
-              <i data-lucide="user-plus" class="step-icon"></i>
+              <i data-lucide="user-plus" class="step-icon anim-float"></i>
             </div>
           </div>
         </div>
@@ -154,10 +167,10 @@
           <p>The journey continues with a highly secure, futuristic login page. Users can sign in using traditional credentials or effortlessly scan their face for instant access using our AI models.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Login</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg login-bg">
-              <i data-lucide="scan-face" class="step-icon"></i>
+              <i data-lucide="scan-face" class="step-icon anim-scan"></i>
             </div>
           </div>
         </div>
@@ -171,10 +184,10 @@
           <p>Once logged in, members are greeted by a dynamic dashboard. It tracks reading streaks, gamification points, and displays current borrowed books with beautiful glassmorphic widgets.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Dashboard</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg dash-bg">
-              <i data-lucide="layout-dashboard" class="step-icon"></i>
+              <i data-lucide="layout-dashboard" class="step-icon anim-pulse"></i>
             </div>
           </div>
         </div>
@@ -188,10 +201,10 @@
           <p>Searching for books is an immersive experience. View real-time inventory, browse categories, and interact with the 3D book cover models to read descriptions before deciding.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Books</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg book-bg">
-              <i data-lucide="library-big" class="step-icon"></i>
+              <i data-lucide="library-big" class="step-icon anim-float"></i>
             </div>
           </div>
         </div>
@@ -205,10 +218,10 @@
           <p>Members can reserve books instantly. The system dynamically updates book copies in real-time. If a book reaches 0 copies, it is intelligently marked as "Sold Out" until returned.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Loans</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg book-bg">
-              <i data-lucide="bookmark-check" class="step-icon"></i>
+              <i data-lucide="bookmark-check" class="step-icon anim-bounce"></i>
             </div>
           </div>
         </div>
@@ -222,10 +235,10 @@
           <p>Say goodbye to printed receipts. Every loan or reservation generates a digital E-Ticket with a unique QR code, ensuring fast, frictionless checkouts and returns at the counter.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Ticket</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg ticket-bg">
-              <i data-lucide="qr-code" class="step-icon"></i>
+              <i data-lucide="qr-code" class="step-icon anim-pulse"></i>
             </div>
           </div>
         </div>
@@ -239,10 +252,10 @@
           <p>Reading is rewarding. The system tracks the number of books read, unlocking special digital badges and maintaining streaks to encourage continuous learning and engagement.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Rewards</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg dash-bg">
-              <i data-lucide="trophy" class="step-icon"></i>
+              <i data-lucide="trophy" class="step-icon anim-wiggle"></i>
             </div>
           </div>
         </div>
@@ -256,15 +269,58 @@
           <p>The system intelligently calculates overdue periods. Members can track their due dates, while admins can seamlessly process returns, calculate fines, and instantly restock book copies.</p>
         </div>
         <div class="step-visual">
-          <div class="desktop-frame mini">
+          <div class="desktop-frame mini glow-border-subtle">
             <div class="desktop-header"><div class="desktop-title">Smart Library Pro - Returns</div><div class="desktop-controls"><span class="ctrl min"></span><span class="ctrl max"></span><span class="ctrl close"></span></div></div>
             <div class="desktop-body step-bg ticket-bg">
-              <i data-lucide="calendar-clock" class="step-icon"></i>
+              <i data-lucide="calendar-clock" class="step-icon anim-spin-slow"></i>
             </div>
           </div>
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Complete Tech Stack Section -->
+  <section class="tech-stack" id="tech">
+    <div class="section-header reveal">
+      <h2>The <span class="text-gradient">Technology</span> Core</h2>
+      <p>Powered by a robust, modern stack engineered for speed and security.</p>
+    </div>
+    
+    <div class="tech-badges">
+      <div class="tech-badge glass-card reveal">
+        <i data-lucide="scan-face" class="tech-icon"></i>
+        <span>Face-API.js AI Auth</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.1s">
+        <i data-lucide="database" class="tech-icon"></i>
+        <span>Supabase Realtime DB</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.2s">
+        <i data-lucide="layout-template" class="tech-icon"></i>
+        <span>React & TailwindCSS</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.3s">
+        <i data-lucide="server" class="tech-icon"></i>
+        <span>Netlify Edge Hosting</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.4s">
+        <i data-lucide="monitor" class="tech-icon"></i>
+        <span>Electron Desktop App</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.5s">
+        <i data-lucide="qr-code" class="tech-icon"></i>
+        <span>QR E-Ticket Engine</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.6s">
+        <i data-lucide="box" class="tech-icon"></i>
+        <span>3D Tilt Interactions</span>
+      </div>
+      <div class="tech-badge glass-card reveal" style="transition-delay: 0.7s">
+        <i data-lucide="shield" class="tech-icon"></i>
+        <span>Row Level Security</span>
+      </div>
     </div>
   </section>
 
