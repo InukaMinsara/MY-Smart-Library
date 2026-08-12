@@ -8,7 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   vite: {
-    base: "/Smart_Library_New_v2.0/",
+    base: "/",
   },
   tanstackStart: {
     ssr: false,
