@@ -53,6 +53,22 @@ function createWindow () {
     }
   })
 
+  // Handle network errors (DNS, disconnected, Netlify down)
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    // Only intercept errors for the main frame (not images/scripts)
+    if (validatedURL.startsWith('https://smartlibrary02.netlify.app')) {
+      mainWindow.loadFile(path.join(__dirname, 'deleted.html'))
+    }
+  })
+
+  // Handle Netlify 404 (Site not found/deleted)
+  mainWindow.webContents.on('did-navigate', (event, url, httpResponseCode, httpStatusText) => {
+    // 404 means the site is deleted or not found on Netlify
+    if (url.startsWith('https://smartlibrary02.netlify.app') && httpResponseCode === 404) {
+      mainWindow.loadFile(path.join(__dirname, 'deleted.html'))
+    }
+  })
+
   mainWindow.loadURL('https://smartlibrary02.netlify.app/')
 }
 
