@@ -15,6 +15,12 @@
     "directories": {
       "output": "dist"
     },
+    "protocols": {
+      "name": "smartlibrary",
+      "schemes": [
+        "smartlibrary"
+      ]
+    },
     "win": {
       "target": [
         {

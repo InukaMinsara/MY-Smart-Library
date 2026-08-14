@@ -40,7 +40,26 @@ function CompleteProfilePage() {
   const isUnder18 = ageNum > 0 && ageNum < 18;
   const isAdult = ageNum >= 18;
 
+  const [appLauncher, setAppLauncher] = useState(false);
+
   useEffect(() => {
+    const isElectron = /electron/i.test(navigator.userAgent);
+    
+    if (!isElectron) {
+      // If opened in a regular web browser (like Chrome from an email link)
+      // Try to open the Desktop App via Deep Link
+      setAppLauncher(true);
+      setChecking(false);
+      
+      const deepLink = "smartlibrary://" + window.location.pathname + window.location.search + window.location.hash;
+      
+      // Attempt to launch the app
+      setTimeout(() => {
+        window.location.href = deepLink;
+      }, 500);
+      return;
+    }
+
     const init = async () => {
       // Handle Supabase invite token in URL hash (#access_token=...)
       const hash = window.location.hash;
@@ -163,6 +182,43 @@ function CompleteProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sidebar via-primary/40 to-accent/30">
         <Loader2 className="h-8 w-8 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (appLauncher) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-sidebar via-primary/40 to-accent/30 flex items-center justify-center p-6">
+        <Card className="shadow-2xl border-0 max-w-lg w-full text-center">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <div className="h-16 w-16 rounded-2xl bg-accent flex items-center justify-center shadow-lg">
+                <Library className="h-8 w-8 text-accent-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Opening Smart Library Pro...</CardTitle>
+            <CardDescription className="text-base mt-2">
+              You are being redirected to the Desktop Application to complete your profile setup.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm font-medium mb-2">If the app didn't open automatically:</p>
+              <Button onClick={() => window.location.href = "smartlibrary://" + window.location.pathname + window.location.search + window.location.hash} className="w-full">
+                Click here to Launch App
+              </Button>
+            </div>
+            
+            <div className="border-t pt-6">
+              <p className="text-sm text-muted-foreground mb-3">Don't have the Smart Library Pro app installed yet?</p>
+              <a href="/Smart_Library_Pro_Setup_2.0.0.zip" download>
+                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10">
+                  Download Desktop App
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
