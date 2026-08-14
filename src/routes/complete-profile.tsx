@@ -41,6 +41,10 @@ function CompleteProfilePage() {
   const isAdult = ageNum >= 18;
 
   const [appLauncher, setAppLauncher] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [isInvite, setIsInvite] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const isElectron = /electron/i.test(navigator.userAgent);
@@ -64,6 +68,10 @@ function CompleteProfilePage() {
       // Handle Supabase invite token in URL hash (#access_token=...)
       const hash = window.location.hash;
       if (hash && hash.includes("access_token")) {
+        // Detect if they came from an invite
+        if (hash.includes("type=invite")) {
+          setIsInvite(true);
+        }
         // Let Supabase SDK parse the hash and establish the session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         if (sessionError || !sessionData.session) {
@@ -77,6 +85,7 @@ function CompleteProfilePage() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) { navigate({ to: "/auth" }); return; }
       setUserId(data.user.id);
+      if (data.user.email) setUserEmail(data.user.email);
 
       // Pre-fill name from OAuth metadata (Google/GitHub/Microsoft provide this)
       const metaName = data.user.user_metadata?.full_name
@@ -113,6 +122,11 @@ function CompleteProfilePage() {
     }
     if (isAdult && (!nicId || !membershipNumber)) {
       toast.error("NIC ID and Library Membership Number are required."); return;
+    }
+    if (isInvite) {
+      if (!password) { toast.error("Please set a password."); return; }
+      if (password.length < 6) { toast.error("Password must be at least 6 characters."); return; }
+      if (password !== confirmPassword) { toast.error("Passwords do not match."); return; }
     }
     setStep(1);
   };
@@ -160,7 +174,11 @@ function CompleteProfilePage() {
       }
 
       // Also update the auth user's display name
-      await supabase.auth.updateUser({ data: { full_name: fullName.trim() } });
+      const updates: any = { data: { full_name: fullName.trim() } };
+      if (isInvite && password) {
+        updates.password = password;
+      }
+      await supabase.auth.updateUser(updates);
 
       if (error) {
         console.error("Profile save error:", error);
@@ -274,6 +292,17 @@ function CompleteProfilePage() {
             {/* Step 0: Personal Info */}
             {step === 0 && (
               <form onSubmit={handleNextStep0} className="space-y-3">
+                {userEmail && (
+                  <div>
+                    <Label htmlFor="cp-email">Email Address</Label>
+                    <Input
+                      id="cp-email"
+                      value={userEmail}
+                      disabled
+                      className="bg-muted/50 cursor-not-allowed text-muted-foreground"
+                    />
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="cp-name">Full Name <span className="text-red-500">*</span></Label>
                   <Input
@@ -323,6 +352,22 @@ function CompleteProfilePage() {
                       <Label htmlFor="cp-mn2">Library Membership Number <span className="text-red-500">*</span></Label>
                       <Input id="cp-mn2" required value={membershipNumber}
                         onChange={e => setMembershipNumber(e.target.value)} placeholder="e.g. LIB-00123" />
+                    </div>
+                  </div>
+                )}
+
+                {isInvite && (
+                  <div className="border rounded-lg p-3 space-y-3 bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800">
+                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">Account Security</p>
+                    <div>
+                      <Label htmlFor="cp-pass">Set Password <span className="text-red-500">*</span></Label>
+                      <Input id="cp-pass" type="password" required value={password}
+                        onChange={e => setPassword(e.target.value)} placeholder="Minimum 6 characters" />
+                    </div>
+                    <div>
+                      <Label htmlFor="cp-cpass">Confirm Password <span className="text-red-500">*</span></Label>
+                      <Input id="cp-cpass" type="password" required value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter password" />
                     </div>
                   </div>
                 )}
