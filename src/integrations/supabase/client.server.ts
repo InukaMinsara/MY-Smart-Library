@@ -51,6 +51,9 @@ function createSupabaseAdminClient() {
       storage: undefined,
       persistSession: false,
       autoRefreshToken: false,
+    },
+    realtime: {
+      transport: typeof WebSocket !== 'undefined' ? WebSocket : class DummyWebSocket {} as any,
     }
   });
 }
