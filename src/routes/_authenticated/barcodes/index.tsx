@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/library/page-header";
 import { PermissionGate } from "@/components/library/permission-gate";
 import { Search, Printer, Loader2, ScanBarcode } from "lucide-react";
