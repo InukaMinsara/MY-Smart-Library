@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, Library } from "lucide-react";
 
 export const Route = createFileRoute("/update-password")({
   component: UpdatePasswordPage,
@@ -17,10 +17,24 @@ function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [appLauncher, setAppLauncher] = useState(false);
 
   useEffect(() => {
     document.title = "Update Password • Smart Library";
     
+    const isElectron = /electron/i.test(navigator.userAgent);
+    
+    // If opened via Chrome/Email but app is installed, attempt deep link launch
+    if (!isElectron) {
+      setAppLauncher(true);
+      const deepLink = "smartlibrary://" + window.location.pathname + window.location.search + window.location.hash;
+      
+      setTimeout(() => {
+        window.location.href = deepLink;
+      }, 500);
+      return;
+    }
+
     // Check if user is actually authenticated (magic link logs them in)
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
@@ -46,6 +60,43 @@ function UpdatePasswordPage() {
       navigate({ to: "/dashboard", replace: true });
     }
   };
+
+  if (appLauncher) {
+    return (
+      <div className="min-h-screen w-full bg-gradient-to-br from-sidebar via-primary/40 to-accent/30 flex items-center justify-center p-6">
+        <Card className="shadow-2xl border-0 max-w-lg w-full text-center">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <div className="h-16 w-16 rounded-2xl bg-accent flex items-center justify-center shadow-lg">
+                <Library className="h-8 w-8 text-accent-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Opening Smart Library Pro...</CardTitle>
+            <CardDescription className="text-base mt-2">
+              You are being redirected to the Desktop Application to reset your password.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm font-medium mb-2">If the app didn't open automatically:</p>
+              <Button onClick={() => window.location.href = "smartlibrary://" + window.location.pathname + window.location.search + window.location.hash} className="w-full">
+                Click here to Launch App
+              </Button>
+            </div>
+            
+            <div className="border-t pt-6">
+              <p className="text-sm text-muted-foreground mb-3">Don't have the Smart Library Pro app installed yet?</p>
+              <a href="/Smart_Library_Pro_Setup_2.0.0.zip" download>
+                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10">
+                  Download Desktop App
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-sidebar via-primary/40 to-accent/30 flex items-center justify-center p-6">
