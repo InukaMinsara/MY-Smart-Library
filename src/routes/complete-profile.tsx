@@ -74,6 +74,7 @@ function CompleteProfilePage() {
         const { data, error: userError } = await supabase.auth.getUser();
         if (userError || !data.user) { 
           console.error("Auth error:", userError);
+          await supabase.auth.signOut();
           navigate({ to: "/auth" }); 
           return; 
         }
@@ -117,6 +118,7 @@ function CompleteProfilePage() {
       } catch (err) {
         console.error("Initialization error:", err);
         toast.error("Failed to load profile. Please try logging in again.");
+        await supabase.auth.signOut();
         navigate({ to: "/auth" });
       }
     };
