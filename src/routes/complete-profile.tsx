@@ -65,48 +65,62 @@ function CompleteProfilePage() {
     }
 
     const init = async () => {
-      // Handle Supabase invite token in URL hash (#access_token=...)
-      const hash = window.location.hash;
-      if (hash && hash.includes("access_token")) {
-        // Detect if they came from an invite
-        if (hash.includes("type=invite")) {
-          setIsInvite(true);
+      try {
+        // Handle Supabase invite token in URL hash (#access_token=...)
+        const hash = window.location.hash;
+        if (hash && hash.includes("access_token")) {
+          // Detect if they came from an invite
+          if (hash.includes("type=invite")) {
+            setIsInvite(true);
+          }
+          
+          // In Supabase v2, the client automatically processes the hash token on load.
+          // Wait a tiny bit for the session to be established automatically by the SDK
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Clear the hash from the URL without triggering a reload
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
         }
-        // Let Supabase SDK parse the hash and establish the session
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !sessionData.session) {
-          // Try to set the session from the URL hash
-          await supabase.auth.refreshSession();
+
+        const { data, error: userError } = await supabase.auth.getUser();
+        if (userError || !data.user) { 
+          console.error("Auth error:", userError);
+          navigate({ to: "/auth" }); 
+          return; 
         }
-        // Clear the hash from the URL without triggering a reload
-        window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      }
+        
+        setUserId(data.user.id);
+        if (data.user.email) setUserEmail(data.user.email);
 
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) { navigate({ to: "/auth" }); return; }
-      setUserId(data.user.id);
-      if (data.user.email) setUserEmail(data.user.email);
+        // Pre-fill name from OAuth metadata (Google/GitHub/Microsoft provide this)
+        const metaName = data.user.user_metadata?.full_name
+          || data.user.user_metadata?.name
+          || "";
+        if (metaName) setFullName(metaName);
 
-      // Pre-fill name from OAuth metadata (Google/GitHub/Microsoft provide this)
-      const metaName = data.user.user_metadata?.full_name
-        || data.user.user_metadata?.name
-        || "";
-      if (metaName) setFullName(metaName);
+        // Check if profile is already complete (has age in members table)
+        const { data: member, error: memberError } = await supabase
+          .from("members")
+          .select("age, address, full_name")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
 
-      // Check if profile is already complete (has age in members table)
-      const { data: member } = await supabase
-        .from("members")
-        .select("age, address, full_name")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
+        if (memberError) {
+          console.error("Member fetch error:", memberError);
+        }
 
-      if (member?.age && member?.address && member?.full_name) {
-        // Already complete — go to dashboard
-        navigate({ to: "/dashboard" });
-      } else {
-        // Pre-fill name from members table if it exists
-        if (member?.full_name) setFullName(member.full_name);
-        setChecking(false);
+        if (member?.age && member?.address && member?.full_name) {
+          // Already complete — go to dashboard
+          navigate({ to: "/dashboard" });
+        } else {
+          // Pre-fill name from members table if it exists
+          if (member?.full_name) setFullName(member.full_name);
+          setChecking(false);
+        }
+      } catch (err) {
+        console.error("Initialization error:", err);
+        toast.error("Failed to load profile. Please try logging in again.");
+        navigate({ to: "/auth" });
       }
     };
     init();
