@@ -12,7 +12,7 @@ import { PermissionGate } from "@/components/library/permission-gate";
 import { usePermissions } from "@/hooks/use-current-user";
 import { daysBetween, fmtDate } from "@/lib/library-utils";
 import { FINE_PER_DAY, cancelRemindersForLoan, recordReturnFine, notifyNextReservation } from "@/lib/circulation";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, ScanBarcode } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/returns/")({
@@ -91,6 +91,33 @@ function ReturnsPage() {
       />
       <Card>
         <CardContent className="p-4">
+          {can("return_books") && (
+            <div className="bg-muted/50 p-3 rounded-md mb-4 border border-border flex items-center gap-3">
+              <ScanBarcode className="h-5 w-5 text-muted-foreground" />
+              <Input 
+                placeholder="Scan Book Barcode to return..." 
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const val = e.currentTarget.value.trim();
+                    if (!val) return;
+                    
+                    // Find active loan with this book barcode
+                    const loan = activeLoans.data?.find((l: any) => l.book_copies?.barcode === val);
+                    
+                    if (loan) {
+                      processReturn(loan, 'available');
+                      e.currentTarget.value = "";
+                    } else {
+                      toast.error("No active loan found for this barcode.");
+                      e.currentTarget.value = "";
+                    }
+                  }
+                }}
+              />
+            </div>
+          )}
           <div className="relative mb-4">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search active loans…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8" />

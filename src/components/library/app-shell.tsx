@@ -3,7 +3,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, BookOpen, Users, ArrowLeftRight, RotateCcw,
   BookMarked, FileBarChart, Settings, LogOut, Moon, Sun, Library,
-  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing, AlertTriangle, FolderPlus
+  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing, AlertTriangle, FolderPlus, ScanBarcode
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ import { MagneticButton } from "@/components/landing/MagneticButton";
 const staffNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, permission: "dashboard" },
   { title: "Books", url: "/books", icon: BookOpen, permission: "books" },
+  { title: "Barcode Labels", url: "/barcodes", icon: ScanBarcode, permission: "books" },
   { title: "Inventory Issues", url: "/inventory-issues", icon: AlertTriangle, permission: "books" },
   { title: "Library Members", url: "/members", icon: Users, permission: "members" },
   { title: "Loans", url: "/loans", icon: ArrowLeftRight, permission: "loans" },

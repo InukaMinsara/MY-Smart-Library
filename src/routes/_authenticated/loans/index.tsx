@@ -15,7 +15,7 @@ import { PermissionGate, Can } from "@/components/library/permission-gate";
 import { usePermissions } from "@/hooks/use-current-user";
 import { addDays, exportCSV, fmtDate, toISODate, printHTML } from "@/lib/library-utils";
 import { checkBorrowEligibility, scheduleReturnReminders, MAX_BOOKS_PER_MEMBER } from "@/lib/circulation";
-import { Plus, Search, Download, Printer } from "lucide-react";
+import { Plus, Search, Download, Printer, QrCode } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/loans/")({
@@ -136,6 +136,41 @@ function LoansPage() {
               <DialogContent>
                 <DialogHeader><DialogTitle>Issue a Loan</DialogTitle></DialogHeader>
                 <form onSubmit={issue} className="space-y-3">
+                  <div className="bg-muted/50 p-3 rounded-md mb-4 border border-border flex items-center gap-3">
+                    <QrCode className="h-5 w-5 text-muted-foreground" />
+                    <Input 
+                      placeholder="Scan Member or Book Barcode..." 
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = e.currentTarget.value.trim();
+                          if (!val) return;
+                          
+                          // Check if it's a member
+                          const member = members.data?.find((m: any) => m.member_number === val || m.id === val);
+                          if (member) {
+                            setMemberId(member.id);
+                            toast.success(`Member selected: ${member.full_name}`);
+                            e.currentTarget.value = "";
+                            return;
+                          }
+                          
+                          // Check if it's a book copy
+                          const copy = availableCopies.data?.find((c: any) => c.barcode === val);
+                          if (copy) {
+                            setCopyId(copy.id);
+                            toast.success(`Book selected: ${copy.books?.title}`);
+                            e.currentTarget.value = "";
+                            return;
+                          }
+                          
+                          toast.error("Barcode not recognized as active member or available book");
+                          e.currentTarget.value = "";
+                        }
+                      }}
+                    />
+                  </div>
                   <div>
                     <Label>Member</Label>
                     <Select value={memberId} onValueChange={setMemberId}>
