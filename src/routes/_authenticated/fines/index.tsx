@@ -13,6 +13,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from "@/components/library/page-header";
 import { usePermissions } from "@/hooks/use-current-user";
+import { PermissionGate } from "@/components/library/permission-gate";
+import { fmtDate, exportCSV, printHTML } from "@/lib/library-utils";
+import { Coins, Search, Download, Printer } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/fines/")({
   head: () => ({
