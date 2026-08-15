@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/books/")({
 
 function BooksPage() {
   const qc = useQueryClient();
-  const { can, isSuperAdmin } = usePermissions();
+  const { can, isSuperAdmin, isMember } = usePermissions();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
   const [editing, setEditing] = useState<any | null>(null);
@@ -152,7 +152,7 @@ function BooksPage() {
               code: b.book_code, title: b.title, author: b.author, isbn: b.isbn, year: b.publication_year,
               category: b.categories?.name, shelf: b.shelf_location, copies: b.book_copies?.length ?? 0,
             })))}><Download className="mr-2 h-4 w-4" /> Export</Button></Can>
-            {(can("add_book") || can("edit_book")) && (
+            {!isMember && (can("add_book") || can("edit_book")) && (
             <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setSelectedCategoryId("none"); setCoverFile(null); } }}>
               {can("add_book") && (
               <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Add Book</Button></DialogTrigger>
@@ -298,10 +298,10 @@ function BooksPage() {
                         <Button size="icon" variant="ghost" onClick={() => { setSelectedBookForQr(b); setQrOpen(true); }} title="QR Code">
                           <QrCode className="h-4 w-4" />
                         </Button>
-                        <Can permission="edit_book">
+                        {!isMember && <Can permission="edit_book">
                           <Button size="icon" variant="ghost" onClick={() => { setAddCopyBook(b); setNewCopyBarcode(""); setAddCopyOpen(true); }} title="Add copy"><Boxes className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" onClick={() => { setEditing(b); setOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                        </Can>
+                        </Can>}
                         {isSuperAdmin && (
                         <AlertDialog>
                           <AlertDialogTrigger asChild><Button size="icon" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
