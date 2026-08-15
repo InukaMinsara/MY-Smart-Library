@@ -28,6 +28,7 @@ import { Route as AuthenticatedReservationsIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedReturnsIndexRouteImport } from './routes/_authenticated/returns/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
+import { Route as AuthenticatedWishlistIndexRouteImport } from './routes/_authenticated/wishlist/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -131,6 +132,12 @@ const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   path: '/users/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWishlistIndexRoute =
+  AuthenticatedWishlistIndexRouteImport.update({
+    id: '/wishlist/',
+    path: '/wishlist/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/returns/': typeof AuthenticatedReturnsIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
+  '/wishlist/': typeof AuthenticatedWishlistIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/returns': typeof AuthenticatedReturnsIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
+  '/wishlist': typeof AuthenticatedWishlistIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/returns/': typeof AuthenticatedReturnsIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
+  '/_authenticated/wishlist/': typeof AuthenticatedWishlistIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/returns/'
     | '/settings/'
     | '/users/'
+    | '/wishlist/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/returns'
     | '/settings'
     | '/users'
+    | '/wishlist'
   id:
     | '__root__'
     | '/'
@@ -256,6 +268,7 @@ export interface FileRouteTypes {
     | '/_authenticated/returns/'
     | '/_authenticated/settings/'
     | '/_authenticated/users/'
+    | '/_authenticated/wishlist/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -402,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/wishlist/': {
+      id: '/_authenticated/wishlist/'
+      path: '/wishlist'
+      fullPath: '/wishlist/'
+      preLoaderRoute: typeof AuthenticatedWishlistIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -419,6 +439,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReturnsIndexRoute: typeof AuthenticatedReturnsIndexRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedWishlistIndexRoute: typeof AuthenticatedWishlistIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -435,6 +456,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReturnsIndexRoute: AuthenticatedReturnsIndexRoute,
   AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedWishlistIndexRoute: AuthenticatedWishlistIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

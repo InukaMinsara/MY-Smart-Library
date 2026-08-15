@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,7 @@ import { PermissionGate, Can } from "@/components/library/permission-gate";
 import { usePermissions } from "@/hooks/use-current-user";
 import { QRCodeSVG } from "qrcode.react";
 import { exportCSV } from "@/lib/library-utils";
-import { Plus, Search, Download, Pencil, Trash2, Boxes, QrCode, Check, ChevronsUpDown, FolderPlus } from "lucide-react";
+import { Plus, Search, Download, Pencil, Trash2, Boxes, QrCode, Check, ChevronsUpDown, FolderPlus, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -295,6 +295,11 @@ function BooksPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-right space-x-1">
+                        <Link to="/book/$bookId" params={{ bookId: b.id }}>
+                          <Button size="icon" variant="ghost" title="View details">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button size="icon" variant="ghost" onClick={() => { setSelectedBookForQr(b); setQrOpen(true); }} title="QR Code">
                           <QrCode className="h-4 w-4" />
                         </Button>

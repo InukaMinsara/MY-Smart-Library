@@ -3,7 +3,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, BookOpen, Users, ArrowLeftRight, RotateCcw,
   BookMarked, FileBarChart, Settings, LogOut, Moon, Sun, Library,
-  ShieldCheck, ScrollText, UserCircle, Coins, Bell,
+  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +36,7 @@ const staffNav = [
 
 const adminNav = [
   { title: "System Employees", url: "/users", icon: ShieldCheck, superAdminOnly: true },
+  { title: "Notice Board", url: "/notices", icon: BellRing, superAdminOnly: true },
   { title: "Activity Logs", url: "/activity-logs", icon: ScrollText, permission: "activity_logs" },
   { title: "Settings", url: "/settings", icon: Settings, permission: "settings" },
 ];
@@ -44,6 +45,7 @@ const adminNav = [
 const memberNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Books", url: "/books", icon: BookOpen },
+  { title: "My Wishlist", url: "/wishlist", icon: Heart },
   { title: "Members", url: "/members", icon: Users },
   { title: "My Loans", url: "/loans", icon: ArrowLeftRight },
   { title: "My Returns", url: "/returns", icon: RotateCcw },

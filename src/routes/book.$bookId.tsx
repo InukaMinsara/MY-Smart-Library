@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Library, BookOpen, Layers, MapPin, Loader2, Tag } from "lucide-react";
+import { WishlistButton } from "@/components/library/wishlist-button";
+import { BookReviews } from "@/components/library/book-reviews";
 
 export const Route = createFileRoute("/book/$bookId")({
   head: () => ({
@@ -15,7 +17,7 @@ export const Route = createFileRoute("/book/$bookId")({
 function BookDetailsPage() {
   const { bookId } = Route.useParams();
 
-  const { data: book, isLoading, error } = useQuery({
+  const { data: _book, isLoading, error } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -28,6 +30,8 @@ function BookDetailsPage() {
       return data;
     },
   });
+  
+  const book = _book as any;
 
   if (isLoading) {
     return (
@@ -91,9 +95,14 @@ function BookDetailsPage() {
           
           <CardContent className="pt-16 pb-8 px-6 sm:px-8">
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">{book.title}</h1>
-                <p className="text-lg text-muted-foreground font-medium">by {book.author}</p>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">{book.title}</h1>
+                  <p className="text-lg text-muted-foreground font-medium">by {book.author}</p>
+                </div>
+                <div className="shrink-0">
+                  <WishlistButton bookId={book.id} />
+                </div>
               </div>
 
               {book.description && (
@@ -149,6 +158,8 @@ function BookDetailsPage() {
                   <span>{book.publisher || "—"} {book.publication_year ? `(${book.publication_year})` : ""}</span>
                 </div>
               </div>
+
+              <BookReviews bookId={book.id} />
             </div>
           </CardContent>
         </Card>

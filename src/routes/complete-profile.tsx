@@ -107,7 +107,7 @@ function CompleteProfilePage() {
           console.error("Member fetch error:", memberError);
         }
 
-        if (member?.age && member?.address && member?.full_name) {
+        if ((member as any)?.age && (member as any)?.address && (member as any)?.full_name) {
           // Already complete — go to dashboard
           navigate({ to: "/dashboard" });
         } else {

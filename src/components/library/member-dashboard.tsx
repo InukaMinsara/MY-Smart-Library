@@ -10,6 +10,8 @@ import { DigitalTicket } from "./DigitalTicket";
 import { VirtualBookshelf } from "./VirtualBookshelf";
 import { AICarousel } from "./AICarousel";
 import { GamificationWidget } from "./GamificationWidget";
+import { NoticeBoardWidget } from "./notice-board-widget";
+import { ReadingGoalsWidget } from "./reading-goals-widget";
 
 export function MemberDashboard() {
   const { user, profile } = usePermissions();
@@ -50,41 +52,53 @@ export function MemberDashboard() {
 
       <AICarousel />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <GamificationWidget />
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <BookOpen className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{s?.activeLoans ?? "—"}</div>
-              <div className="text-xs text-muted-foreground">Active Loans</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{s?.overdue ?? "—"}</div>
-              <div className="text-xs text-muted-foreground">Overdue Books</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
-              <Clock className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{s?.reservations ?? "—"}</div>
-              <div className="text-xs text-muted-foreground">My Reservations</div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 md:grid-cols-3 mb-8">
+        <div className="md:col-span-2 space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <BookOpen className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{s?.activeLoans ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground">Active Loans</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{s?.overdue ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground">Overdue Books</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="sm:col-span-2 lg:col-span-1">
+              <CardContent className="flex items-center gap-4 p-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                  <Clock className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">{s?.reservations ?? "—"}</div>
+                  <div className="text-xs text-muted-foreground">My Reservations</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Reading Goals */}
+          <ReadingGoalsWidget />
+          
+          <GamificationWidget />
+        </div>
+        
+        <div className="space-y-6">
+          <NoticeBoardWidget />
+        </div>
       </div>
       
       {/* 3D Virtual Bookshelf */}
