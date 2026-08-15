@@ -37,6 +37,7 @@ function BooksPage() {
   const { can, isSuperAdmin, isMember } = usePermissions();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("newest");
   const [editing, setEditing] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -72,11 +73,20 @@ function BooksPage() {
     toast.success(`Category "${trimmed}" created and selected!`);
   };
 
-  const filtered = (books.data ?? []).filter((b: any) => {
-    const matches = !q || [b.title, b.author, b.isbn, b.book_number].some((v) => String(v ?? "").toLowerCase().includes(q.toLowerCase()));
-    const catOk = cat === "all" || b.category_id === cat;
-    return matches && catOk;
-  });
+  const filtered = (books.data ?? [])
+    .filter((b: any) => {
+      const matches = !q || [b.title, b.author, b.isbn, b.book_number].some((v) => String(v ?? "").toLowerCase().includes(q.toLowerCase()));
+      const catOk = cat === "all" || b.category_id === cat;
+      return matches && catOk;
+    })
+    .sort((a: any, b: any) => {
+      if (sortBy === "newest") {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      } else if (sortBy === "a-z") {
+        return (a.title || "").localeCompare(b.title || "");
+      }
+      return 0;
+    });
 
   const save = async (form: FormData): Promise<void> => {
     let new_cover_url = editing?.cover_url || null;
@@ -274,10 +284,17 @@ function BooksPage() {
               <Input placeholder="Search by title, author, ISBN, code…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-8" />
             </div>
             <Select value={cat} onValueChange={setCat}>
-              <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All categories</SelectItem>
                 {(cats.data ?? []).map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="a-z">Title (A-Z)</SelectItem>
               </SelectContent>
             </Select>
           </div>

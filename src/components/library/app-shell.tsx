@@ -3,7 +3,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, BookOpen, Users, ArrowLeftRight, RotateCcw,
   BookMarked, FileBarChart, Settings, LogOut, Moon, Sun, Library,
-  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing, AlertTriangle, FolderPlus, ScanBarcode
+  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing, AlertTriangle, FolderPlus, ScanBarcode, Trophy
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +55,7 @@ const memberNav = [
   { title: "My Returns", url: "/returns", icon: RotateCcw },
   { title: "My Reservations", url: "/reservations", icon: BookMarked },
   { title: "My Reports", url: "/reports", icon: FileBarChart },
+  { title: "Leaderboards", url: "/leaderboard", icon: Trophy },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "My Profile", url: "/profile", icon: UserCircle },
 ];

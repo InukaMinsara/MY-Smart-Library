@@ -12,6 +12,7 @@ import { AICarousel } from "./AICarousel";
 import { GamificationWidget } from "./GamificationWidget";
 import { NoticeBoardWidget } from "./notice-board-widget";
 import { ReadingGoalsWidget } from "./reading-goals-widget";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
 
 export function MemberDashboard() {
   const { user, profile } = usePermissions();
@@ -41,6 +42,28 @@ export function MemberDashboard() {
     queryFn: async () => {
       const { data } = await supabase.from("loans").select("id, loan_number, issued_at, due_at, status, members(full_name), book_copies(books(title, cover_url))").eq("member_id", memberId).eq("status", "active").order("due_at");
       return data ?? [];
+    },
+  });
+
+  const readingHistory = useQuery({
+    queryKey: ["member-reading-history", memberId],
+    enabled: !!memberId,
+    queryFn: async () => {
+      const since = new Date(); since.setMonth(since.getMonth() - 5); since.setDate(1);
+      const { data: loans } = await supabase.from("loans").select("issued_at").eq("member_id", memberId).gte("issued_at", since.toISOString());
+      
+      const months: Record<string, { m: string; books: number }> = {};
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(); d.setMonth(d.getMonth() - (5 - i));
+        const key = d.toLocaleString(undefined, { month: "short" });
+        months[key] = { m: key, books: 0 };
+      }
+      
+      (loans ?? []).forEach((l: any) => {
+        const k = new Date(l.issued_at).toLocaleString(undefined, { month: "short" });
+        if (months[k]) months[k].books++;
+      });
+      return Object.values(months);
     },
   });
 
@@ -89,6 +112,36 @@ export function MemberDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Reading History (Last 6 Months)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px] w-full">
+                {readingHistory.data ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={readingHistory.data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                      <XAxis dataKey="m" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                      <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                      <Tooltip 
+                        cursor={{ fill: "hsl(var(--muted)/0.5)" }}
+                        contentStyle={{ borderRadius: "8px", border: "1px solid hsl(var(--border))", backgroundColor: "hsl(var(--background))" }}
+                      />
+                      <Bar dataKey="books" name="Books Read" radius={[4, 4, 0, 0]}>
+                        {readingHistory.data.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill="hsl(var(--primary))" />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground text-sm">Loading chart...</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
           
           {/* Reading Goals */}
           <ReadingGoalsWidget />
