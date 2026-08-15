@@ -447,7 +447,7 @@ function AuthPage() {
     if (!email) return toast.error("Please enter your email address.");
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}update-password`,
+      redirectTo: window.location.origin + "/update-password",
     });
     setBusy(false);
     if (error) return toast.error(error.message);
