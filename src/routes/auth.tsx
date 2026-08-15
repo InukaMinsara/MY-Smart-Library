@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import React, { useEffect, useState } from "react";
+import { resetPasswordByEmail } from "@/lib/reset-password.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -446,13 +447,20 @@ function AuthPage() {
     e.preventDefault();
     if (!email) return toast.error("Please enter your email address.");
     setBusy(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/update-password",
-    });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Password reset email sent! Check your inbox.");
-    setView("auth");
+    try {
+      await resetPasswordByEmail({
+        data: {
+          email,
+          redirectTo: window.location.origin + "/update-password",
+        },
+      });
+      toast.success("Password reset email sent! Check your inbox.");
+      setView("auth");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const getRedirectUrl = (path: string) => {
