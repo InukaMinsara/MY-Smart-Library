@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Library, BookOpen, Layers, MapPin, Loader2, Tag } from "lucide-react";
+import { Library, BookOpen, Layers, MapPin, Loader2, Tag, ArrowLeft } from "lucide-react";
 import { WishlistButton } from "@/components/library/wishlist-button";
 import { BookReviews } from "@/components/library/book-reviews";
 
@@ -64,14 +64,20 @@ function BookDetailsPage() {
     <div className="min-h-screen bg-muted/20 flex flex-col items-center py-12 px-4 sm:px-6">
       <div className="max-w-2xl w-full">
         {/* Header Branding */}
-        <div className="flex items-center gap-3 mb-8 justify-center sm:justify-start">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
-            <Library className="h-5 w-5 text-primary-foreground" />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
+              <Library className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <div className="text-xl font-bold leading-none">Smart Library</div>
+              <div className="text-xs text-muted-foreground mt-1">Book Catalog</div>
+            </div>
           </div>
-          <div>
-            <div className="text-xl font-bold leading-none">Smart Library</div>
-            <div className="text-xs text-muted-foreground mt-1">Book Catalog</div>
-          </div>
+          <Button variant="outline" size="sm" onClick={() => window.history.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
         </div>
 
         {/* Book Details Card */}
