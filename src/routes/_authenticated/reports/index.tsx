@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PermissionGate } from "@/components/library/permission-gate";
+import { usePermissions } from "@/hooks/use-current-user";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

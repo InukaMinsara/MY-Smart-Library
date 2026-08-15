@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PermissionGate } from "@/components/library/permission-gate";
+import { usePermissions } from "@/hooks/use-current-user";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

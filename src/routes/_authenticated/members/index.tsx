@@ -22,7 +22,7 @@ import { inviteUserByEmail } from "@/lib/invite.functions";
 export const Route = createFileRoute("/_authenticated/members/")({
   head: () => ({ meta: [{ title: "Members • Smart Library" }, { name: "description", content: "Manage library members." }] }),
   component: () => (
-    <PermissionGate permission="members">
+    <PermissionGate permission="members" memberAllowed>
       <MembersPage />
     </PermissionGate>
   ),
