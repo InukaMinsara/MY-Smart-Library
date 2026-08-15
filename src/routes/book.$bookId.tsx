@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Library, BookOpen, Layers, MapPin, Loader2, Tag, ArrowLeft } from "lucide-react";
 import { WishlistButton } from "@/components/library/wishlist-button";
 import { BookReviews } from "@/components/library/book-reviews";
+import { usePermissions } from "@/hooks/use-current-user";
 
 export const Route = createFileRoute("/book/$bookId")({
   head: () => ({
@@ -17,13 +18,14 @@ export const Route = createFileRoute("/book/$bookId")({
 
 function BookDetailsPage() {
   const { bookId } = Route.useParams();
+  const { isMember } = usePermissions();
 
   const { data: _book, isLoading, error } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("*, categories(name), book_copies(id, status)")
+        .select("*, categories(name), book_copies(*)")
         .eq("id", bookId)
         .single();
       
@@ -164,9 +166,49 @@ function BookDetailsPage() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Published</span>
                   <span>{book.publisher || "—"} {book.publication_year ? `(${book.publication_year})` : ""}</span>
                 </div>
-              </div>
 
-              <BookReviews bookId={book.id} />
+                <div className="mt-8 pt-8 border-t border-border/50">
+                  <h3 className="text-xl font-semibold mb-6">Reviews & Ratings</h3>
+                  <BookReviews bookId={book.id} />
+                </div>
+
+                {!isMember && (
+                  <div className="mt-8 pt-8 border-t border-border/50">
+                    <h3 className="text-xl font-semibold mb-6">Physical Copies (Admin View)</h3>
+                    {book.book_copies && book.book_copies.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-muted-foreground bg-muted/50 uppercase">
+                            <tr>
+                              <th className="px-4 py-3 rounded-tl-lg">Barcode</th>
+                              <th className="px-4 py-3">Status</th>
+                              <th className="px-4 py-3">Supplier</th>
+                              <th className="px-4 py-3 rounded-tr-lg">Acquisition</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {book.book_copies.map((copy: any) => (
+                              <tr key={copy.id} className="border-b border-border/50 last:border-0">
+                                <td className="px-4 py-3 font-mono">{copy.barcode}</td>
+                                <td className="px-4 py-3">
+                                  <Badge variant={copy.status === 'available' ? 'default' : 'secondary'}>{copy.status}</Badge>
+                                </td>
+                                <td className="px-4 py-3">{copy.supplier_name || '-'}</td>
+                                <td className="px-4 py-3">
+                                  {copy.acquisition_type} <br/>
+                                  <span className="text-xs text-muted-foreground">{copy.acquisition_date ? new Date(copy.acquisition_date).toLocaleDateString() : ''}</span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">No copies available for this book.</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

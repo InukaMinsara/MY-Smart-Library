@@ -3,7 +3,7 @@ import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, BookOpen, Users, ArrowLeftRight, RotateCcw,
   BookMarked, FileBarChart, Settings, LogOut, Moon, Sun, Library,
-  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing
+  ShieldCheck, ScrollText, UserCircle, Coins, Bell, Heart, BellRing, AlertTriangle, FolderPlus
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,10 +25,12 @@ import { MagneticButton } from "@/components/landing/MagneticButton";
 const staffNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, permission: "dashboard" },
   { title: "Books", url: "/books", icon: BookOpen, permission: "books" },
+  { title: "Inventory Issues", url: "/inventory-issues", icon: AlertTriangle, permission: "books" },
   { title: "Library Members", url: "/members", icon: Users, permission: "members" },
   { title: "Loans", url: "/loans", icon: ArrowLeftRight, permission: "loans" },
   { title: "Returns", url: "/returns", icon: RotateCcw, permission: "returns" },
   { title: "Reservations", url: "/reservations", icon: BookMarked, permission: "reservations" },
+  { title: "Book Requests", url: "/requests", icon: FolderPlus, permission: "books" },
   { title: "Fines", url: "/fines", icon: Coins, permission: "fine_management" },
   { title: "Notifications", url: "/notifications", icon: Bell, permission: "notification_management" },
   { title: "Reports", url: "/reports", icon: FileBarChart, permission: "reports" },
@@ -46,6 +48,7 @@ const memberNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Books", url: "/books", icon: BookOpen },
   { title: "My Wishlist", url: "/wishlist", icon: Heart },
+  { title: "Book Requests", url: "/requests", icon: FolderPlus },
   { title: "Members", url: "/members", icon: Users },
   { title: "My Loans", url: "/loans", icon: ArrowLeftRight },
   { title: "My Returns", url: "/returns", icon: RotateCcw },

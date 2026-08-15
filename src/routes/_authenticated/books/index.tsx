@@ -45,6 +45,8 @@ function BooksPage() {
   const [addCopyOpen, setAddCopyOpen] = useState(false);
   const [addCopyBook, setAddCopyBook] = useState<any | null>(null);
   const [newCopyBarcode, setNewCopyBarcode] = useState("");
+  const [newCopySupplier, setNewCopySupplier] = useState("");
+  const [newCopyAcqType, setNewCopyAcqType] = useState("purchase");
 
   const cats = useQuery({
     queryKey: ["categories"],
@@ -131,7 +133,14 @@ function BooksPage() {
   const addCopy = async (b: any, barcode: string) => {
     if (!barcode.trim()) return toast.error("Please enter a book number / barcode");
     const { count } = await supabase.from("book_copies").select("*", { count: "exact", head: true }).eq("book_id", b.id);
-    const { error } = await supabase.from("book_copies").insert({ book_id: b.id, copy_number: (count ?? 0) + 1, barcode: barcode.trim() });
+    const { error } = await supabase.from("book_copies").insert({ 
+      book_id: b.id, 
+      copy_number: (count ?? 0) + 1, 
+      barcode: barcode.trim(),
+      supplier_name: newCopySupplier.trim() || null,
+      acquisition_type: newCopyAcqType,
+      acquisition_date: new Date().toISOString().split('T')[0]
+    });
     if (error) return toast.error(error.message);
     
     // Copy the book link to clipboard
@@ -141,6 +150,9 @@ function BooksPage() {
     toast.success("Copy added & link copied to clipboard!");
     qc.invalidateQueries({ queryKey: ["books"] });
     setAddCopyOpen(false);
+    setNewCopyBarcode("");
+    setNewCopySupplier("");
+    setNewCopyAcqType("purchase");
   };
 
   return (
@@ -198,11 +210,27 @@ function BooksPage() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add Copy: {addCopyBook?.title}</DialogTitle>
-                <DialogDescription>Enter a unique book number or barcode for this physical copy.</DialogDescription>
+                <DialogDescription>Enter a unique book number or barcode and acquisition details for this physical copy.</DialogDescription>
               </DialogHeader>
-              <div className="py-4">
-                <Label>Book Number / Barcode</Label>
-                <Input value={newCopyBarcode} onChange={e => setNewCopyBarcode(e.target.value)} placeholder="e.g. BK-2023-001" autoFocus />
+              <div className="py-4 space-y-4">
+                <div className="space-y-2">
+                  <Label>Book Number / Barcode *</Label>
+                  <Input value={newCopyBarcode} onChange={e => setNewCopyBarcode(e.target.value)} placeholder="e.g. BK-2023-001" autoFocus />
+                </div>
+                <div className="space-y-2">
+                  <Label>Acquisition Type</Label>
+                  <Select value={newCopyAcqType} onValueChange={setNewCopyAcqType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="purchase">Purchase</SelectItem>
+                      <SelectItem value="donation">Donation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{newCopyAcqType === 'donation' ? 'Donated By' : 'Supplier Name'} (Optional)</Label>
+                  <Input value={newCopySupplier} onChange={e => setNewCopySupplier(e.target.value)} placeholder={newCopyAcqType === 'donation' ? "e.g. John Doe" : "e.g. Sarasavi Bookshop"} />
+                </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setAddCopyOpen(false)}>Cancel</Button>
