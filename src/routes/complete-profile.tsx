@@ -42,22 +42,20 @@ function CompleteProfilePage() {
 
   const [appLauncher, setAppLauncher] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [isInvite, setIsInvite] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isInvite, setIsInvite] = useState(false);
 
   useEffect(() => {
     const isElectron = /electron/i.test(navigator.userAgent);
     
+    // If opened via Chrome/Email but app is installed, attempt deep link launch
     if (!isElectron) {
-      // If opened in a regular web browser (like Chrome from an email link)
-      // Try to open the Desktop App via Deep Link
       setAppLauncher(true);
       setChecking(false);
       
       const deepLink = "smartlibrary://" + window.location.pathname + window.location.search + window.location.hash;
       
-      // Attempt to launch the app
       setTimeout(() => {
         window.location.href = deepLink;
       }, 500);
@@ -66,21 +64,12 @@ function CompleteProfilePage() {
 
     const init = async () => {
       try {
-        // Handle Supabase invite token in URL hash (#access_token=...)
-        const hash = window.location.hash;
-        if (hash && hash.includes("access_token")) {
-          // Detect if they came from an invite
-          if (hash.includes("type=invite")) {
-            setIsInvite(true);
-          }
-          
-          // In Supabase v2, the client automatically processes the hash token on load.
-          // Wait a tiny bit for the session to be established automatically by the SDK
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Clear the hash from the URL without triggering a reload
-          window.history.replaceState(null, "", window.location.pathname + window.location.search);
-        }
+        // In Supabase v2 with PKCE, the client automatically processes the code/token on load.
+        // Wait a tiny bit for the session to be established automatically by the SDK
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Clear any auth tokens from the URL without triggering a reload
+        window.history.replaceState(null, "", window.location.pathname);
 
         const { data, error: userError } = await supabase.auth.getUser();
         if (userError || !data.user) { 
@@ -91,6 +80,14 @@ function CompleteProfilePage() {
         
         setUserId(data.user.id);
         if (data.user.email) setUserEmail(data.user.email);
+
+        // Detect if this is an invited user (they use email provider, but haven't completed their profile)
+        // Normal email signups complete their profile at the same time they sign up.
+        // Invited users are created by admin, so they land here to complete it.
+        const provider = data.user.app_metadata?.provider;
+        if (provider === 'email') {
+          setIsInvite(true);
+        }
 
         // Pre-fill name from OAuth metadata (Google/GitHub/Microsoft provide this)
         const metaName = data.user.user_metadata?.full_name

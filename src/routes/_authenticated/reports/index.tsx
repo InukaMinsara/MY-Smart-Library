@@ -12,24 +12,38 @@ import { Download, Printer } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/reports/")({
   head: () => ({ meta: [{ title: "Reports • Smart Library" }, { name: "description", content: "Library operations reports." }] }),
   component: () => (
-    <PermissionGate permission="reports">
+    <PermissionGate permission="reports" memberAllowed>
       <ReportsPage />
     </PermissionGate>
   ),
 });
 
 function ReportsPage() {
+  const { isMember, user } = usePermissions();
+
   const overdue = useQuery({
-    queryKey: ["report-overdue"],
-    queryFn: async () => (await supabase.from("loans")
-      .select("loan_number, due_at, members(full_name, member_number), book_copies(books(title))")
-      .eq("status", "active").lt("due_at", new Date().toISOString().slice(0, 10))).data ?? [],
+    queryKey: ["report-overdue", isMember, user?.id],
+    queryFn: async () => {
+      let q = supabase.from("loans")
+        .select("loan_number, due_at, members!inner(user_id, full_name, member_number), book_copies(books(title))")
+        .eq("status", "active").lt("due_at", new Date().toISOString().slice(0, 10));
+      if (isMember && user?.id) {
+        q = q.eq("members.user_id", user.id);
+      }
+      return (await q).data ?? [];
+    },
   });
   const fines = useQuery({
-    queryKey: ["report-fines"],
-    queryFn: async () => (await supabase.from("loans")
-      .select("loan_number, fine_amount, fine_paid, members(full_name, member_number)")
-      .gt("fine_amount", 0).order("fine_amount", { ascending: false })).data ?? [],
+    queryKey: ["report-fines", isMember, user?.id],
+    queryFn: async () => {
+      let q = supabase.from("loans")
+        .select("loan_number, fine_amount, fine_paid, members!inner(user_id, full_name, member_number)")
+        .gt("fine_amount", 0).order("fine_amount", { ascending: false });
+      if (isMember && user?.id) {
+        q = q.eq("members.user_id", user.id);
+      }
+      return (await q).data ?? [];
+    },
   });
 
   const printReport = (title: string, rows: any[], headers: string[]) => {

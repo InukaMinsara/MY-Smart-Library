@@ -9,13 +9,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PermissionGate({
   permission,
   superAdminOnly,
+  memberAllowed,
   children,
 }: {
   permission?: string;
   superAdminOnly?: boolean;
+  memberAllowed?: boolean;
   children: ReactNode;
 }) {
-  const { can, isSuperAdmin, ready, isPending, isDisabled } = usePermissions();
+  const { can, isSuperAdmin, isMember, ready, isPending, isDisabled } = usePermissions();
 
   if (!ready) {
     return (
@@ -45,7 +47,7 @@ export function PermissionGate({
     );
   }
 
-  const allowed = superAdminOnly ? isSuperAdmin : !permission || can(permission);
+  const allowed = superAdminOnly ? isSuperAdmin : (memberAllowed && isMember) ? true : !permission || can(permission);
   if (allowed) return <>{children}</>;
 
   return (
@@ -63,8 +65,8 @@ export function PermissionGate({
 }
 
 /** Inline element guard for buttons and actions. */
-export function Can({ permission, superAdminOnly, children }: { permission?: string; superAdminOnly?: boolean; children: ReactNode }) {
-  const { can, isSuperAdmin } = usePermissions();
-  const allowed = superAdminOnly ? isSuperAdmin : !permission || can(permission);
+export function Can({ permission, superAdminOnly, memberAllowed, children }: { permission?: string; superAdminOnly?: boolean; memberAllowed?: boolean; children: ReactNode }) {
+  const { can, isSuperAdmin, isMember } = usePermissions();
+  const allowed = superAdminOnly ? isSuperAdmin : (memberAllowed && isMember) ? true : !permission || can(permission);
   return allowed ? <>{children}</> : null;
 }

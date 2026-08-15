@@ -259,10 +259,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] rounded-full bg-secondary/40 blur-[140px] animate-blob mix-blend-screen dark:mix-blend-lighten" style={{ animationDelay: "4s" }} />
       </div>
 
-      <div className="flex min-h-screen w-full bg-transparent">
+      <div className="flex min-h-screen w-full bg-transparent overflow-hidden">
         {/* Render completely different sidebar based on account type */}
         {isMember ? <MemberSidebar /> : <StaffSidebar />}
-        <div className="flex flex-1 flex-col relative z-10">
+        <div className="flex flex-1 flex-col relative z-10 min-w-0 overflow-x-hidden">
           <TopBar />
           <main className="flex-1 p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="max-w-[1600px] mx-auto w-full">

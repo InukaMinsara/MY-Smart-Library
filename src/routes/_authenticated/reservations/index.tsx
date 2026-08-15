@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/reservations/")({
   head: () => ({ meta: [{ title: "Reservations • Smart Library" }, { name: "description", content: "Manage the reservation queue." }] }),
   component: () => (
-    <PermissionGate permission="reservations">
+    <PermissionGate permission="reservations" memberAllowed>
       <ReservationsPage />
     </PermissionGate>
   ),
@@ -26,19 +26,33 @@ export const Route = createFileRoute("/_authenticated/reservations/")({
 
 function ReservationsPage() {
   const qc = useQueryClient();
+  const { can, isMember, user } = usePermissions();
   const [open, setOpen] = useState(false);
   const [memberId, setMemberId] = useState("");
   const [bookId, setBookId] = useState("");
 
   const reservations = useQuery({
-    queryKey: ["reservations"],
-    queryFn: async () => (await supabase.from("reservations")
-      .select("*, members(full_name, member_number), books(title, book_number)")
-      .order("reserved_at", { ascending: false })).data ?? [],
+    queryKey: ["reservations", isMember, user?.id],
+    queryFn: async () => {
+      let q = supabase.from("reservations")
+        .select("*, members!inner(user_id, full_name, member_number), books(title, book_number)")
+        .order("reserved_at", { ascending: false });
+        
+      if (isMember && user?.id) {
+        q = q.eq("members.user_id", user.id);
+      }
+      return (await q).data ?? [];
+    },
   });
   const members = useQuery({
     queryKey: ["members-list"],
-    queryFn: async () => (await supabase.from("members").select("id, full_name, member_number").eq("status", "active").order("full_name")).data ?? [],
+    queryFn: async () => {
+      if (isMember) {
+        const { data } = await supabase.from("members").select("id, full_name, member_number").eq("user_id", user?.id).single();
+        return data ? [data] : [];
+      }
+      return (await supabase.from("members").select("id, full_name, member_number").eq("status", "active").order("full_name")).data ?? [];
+    },
   });
   const books = useQuery({
     queryKey: ["books-list"],

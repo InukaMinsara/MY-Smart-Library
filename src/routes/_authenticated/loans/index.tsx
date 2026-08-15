@@ -21,7 +21,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/loans/")({
   head: () => ({ meta: [{ title: "Loans • Smart Library" }, { name: "description", content: "Issue and track book loans." }] }),
   component: () => (
-    <PermissionGate permission="loans">
+    <PermissionGate permission="loans" memberAllowed>
       <LoansPage />
     </PermissionGate>
   ),
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/loans/")({
 
 function LoansPage() {
   const qc = useQueryClient();
-  const { can } = usePermissions();
+  const { can, isMember, user } = usePermissions();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [open, setOpen] = useState(false);
@@ -37,18 +37,31 @@ function LoansPage() {
   const [copyId, setCopyId] = useState<string>("");
 
   const loans = useQuery({
-    queryKey: ["loans"],
-    queryFn: async () => (await supabase.from("loans")
-      .select("*, members(full_name, member_number), book_copies(barcode, copy_number, books(title, book_number))")
-      .order("issued_at", { ascending: false })).data ?? [],
+    queryKey: ["loans", isMember, user?.id],
+    queryFn: async () => {
+      let q = supabase.from("loans")
+        .select("*, members!inner(user_id, full_name, member_number), book_copies(barcode, copy_number, books(title, book_number))")
+        .order("issued_at", { ascending: false });
+        
+      if (isMember && user?.id) {
+        q = q.eq("members.user_id", user.id);
+      }
+      return (await q).data ?? [];
+    },
   });
   const members = useQuery({
     queryKey: ["members-active"],
-    queryFn: async () => (await supabase.from("members").select("id, full_name, member_number, email").eq("status", "active").order("full_name")).data ?? [],
+    queryFn: async () => {
+      if (isMember) return []; // Members don't need the members list for issuing loans
+      return (await supabase.from("members").select("id, full_name, member_number, email").eq("status", "active").order("full_name")).data ?? [];
+    },
   });
   const availableCopies = useQuery({
     queryKey: ["copies-available"],
-    queryFn: async () => (await supabase.from("book_copies").select("id, barcode, copy_number, books(title, book_number, reference_only)").eq("status", "available").eq("books.reference_only", false).order("barcode")).data ?? [],
+    queryFn: async () => {
+      if (isMember) return [];
+      return (await supabase.from("book_copies").select("id, barcode, copy_number, books(title, book_number, reference_only)").eq("status", "available").eq("books.reference_only", false).order("barcode")).data ?? [];
+    },
   });
 
   const today = new Date();

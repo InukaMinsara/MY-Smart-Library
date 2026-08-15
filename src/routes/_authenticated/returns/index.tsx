@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/returns/")({
   head: () => ({ meta: [{ title: "Returns • Smart Library" }, { name: "description", content: "Return borrowed books and apply fines." }] }),
   component: () => (
-    <PermissionGate permission="returns">
+    <PermissionGate permission="returns" memberAllowed>
       <ReturnsPage />
     </PermissionGate>
   ),
@@ -26,14 +26,22 @@ export const Route = createFileRoute("/_authenticated/returns/")({
 
 function ReturnsPage() {
   const qc = useQueryClient();
-  const { can } = usePermissions();
+  const { can, isMember, user } = usePermissions();
   const [q, setQ] = useState("");
 
   const loans = useQuery({
-    queryKey: ["loans-active"],
-    queryFn: async () => (await supabase.from("loans")
-      .select("*, members(full_name, member_number), book_copies(id, barcode, book_id, books(title))")
-      .eq("status", "active").order("due_at")).data ?? [],
+    queryKey: ["loans-active", isMember, user?.id],
+    queryFn: async () => {
+      let q = supabase.from("loans")
+        .select("*, members!inner(user_id, full_name, member_number), book_copies(id, barcode, book_id, books(title))")
+        .eq("status", "active")
+        .order("due_at");
+        
+      if (isMember && user?.id) {
+        q = q.eq("members.user_id", user.id);
+      }
+      return (await q).data ?? [];
+    },
   });
 
   const filtered = (loans.data ?? []).filter((l: any) =>
