@@ -8,7 +8,13 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    if (error || !data.user) {
+      // If the user's token is invalid or they were deleted from the server,
+      // clear the local session immediately to prevent infinite redirect loops
+      // with the /auth route which checks getSession() from local storage.
+      await supabase.auth.signOut();
+      throw redirect({ to: "/auth" });
+    }
 
     // Skip the profile-completion check if we're already going there
     if (location.pathname === "/complete-profile") return { user: data.user };
