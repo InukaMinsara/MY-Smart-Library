@@ -54,6 +54,7 @@ const memberNav = [
   { title: "My Loans", url: "/loans", icon: ArrowLeftRight },
   { title: "My Returns", url: "/returns", icon: RotateCcw },
   { title: "My Reservations", url: "/reservations", icon: BookMarked },
+  { title: "My Fines", url: "/fines", icon: Coins },
   { title: "My Reports", url: "/reports", icon: FileBarChart },
   { title: "Leaderboards", url: "/leaderboard", icon: Trophy },
   { title: "Notifications", url: "/notifications", icon: Bell },

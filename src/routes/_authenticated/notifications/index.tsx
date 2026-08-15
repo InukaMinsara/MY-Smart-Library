@@ -181,6 +181,50 @@ function StaffNotificationsPage() {
     onError: (e: any) => toast.error(e?.message ?? "Could not update"),
   });
 
+  const queueOverdue = useMutation({
+    mutationFn: async () => {
+      const now = new Date().toISOString().slice(0, 10);
+      const { data: overdueLoans, error: err } = await supabase
+        .from("loans")
+        .select("id, member_id, due_at, members(full_name, email), book_copies(books(title))")
+        .eq("status", "active")
+        .lt("due_at", now);
+      
+      if (err) throw err;
+      if (!overdueLoans || overdueLoans.length === 0) return 0;
+
+      const rows: any[] = [];
+      const today = new Date().toISOString();
+      
+      for (const l of overdueLoans) {
+        if (!l.members?.email) continue;
+        const due = new Date(l.due_at).toDateString();
+        const title = (l.book_copies as any)?.books?.title || "Unknown Book";
+        rows.push({
+          member_id: l.member_id,
+          loan_id: l.id,
+          type: "overdue_reminder",
+          recipient_email: l.members.email,
+          subject: `URGENT: "${title}" is overdue`,
+          body: `Dear ${l.members.full_name},\n\nOur records show that "${title}" was due on ${due} and has not yet been returned. Please return it immediately. A late fine of LKR 50 per day is accumulating.\n\nSmart Library Management System`,
+          scheduled_for: today,
+          status: "pending"
+        });
+      }
+
+      if (rows.length > 0) {
+        const { error: insErr } = await supabase.from("notifications").insert(rows);
+        if (insErr) throw insErr;
+      }
+      return rows.length;
+    },
+    onSuccess: (count) => {
+      toast.success(`Queued ${count} overdue reminders.`);
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not queue reminders"),
+  });
+
   const rows = (list.data ?? []).filter((n) =>
     !q || [n.subject, n.recipient_email, n.members?.full_name, n.type].some((v) =>
       String(v ?? "").toLowerCase().includes(q.toLowerCase())));
@@ -193,12 +237,18 @@ function StaffNotificationsPage() {
         title="Notifications"
         description="Return reminders and reservation alerts queued for members."
         actions={
-          <Button variant="outline" onClick={() => exportCSV("notifications.csv", rows.map((n) => ({
-            member: n.members?.full_name, email: n.recipient_email, type: n.type,
-            subject: n.subject, scheduled_for: n.scheduled_for, status: n.status,
-          })))}>
-            <Download className="mr-2 h-4 w-4" /> Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => queueOverdue.mutate()} disabled={queueOverdue.isPending}>
+              <Send className="mr-2 h-4 w-4" /> 
+              {queueOverdue.isPending ? "Queueing..." : "Queue Overdue Alerts"}
+            </Button>
+            <Button variant="outline" onClick={() => exportCSV("notifications.csv", rows.map((n) => ({
+              member: n.members?.full_name, email: n.recipient_email, type: n.type,
+              subject: n.subject, scheduled_for: n.scheduled_for, status: n.status,
+            })))}>
+              <Download className="mr-2 h-4 w-4" /> Export CSV
+            </Button>
+          </div>
         }
       />
 
